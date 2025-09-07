@@ -1123,14 +1123,17 @@
             }
 
             async checkFirstTimeSetup() {
-                const hasPassword = localStorage.getItem('vaultNotes_hasPassword');
-                if (!hasPassword) {
-                    document.getElementById('loginSection').classList.add('hidden');
-                    document.getElementById('setupSection').classList.remove('hidden');
-                } else {
-                    document.getElementById('loginSection').classList.remove('hidden');
-                    document.getElementById('setupSection').classList.add('hidden');
-                }
+                // Clear any existing data to force fresh setup
+                localStorage.removeItem('vaultNotes_hasPassword');
+                localStorage.removeItem('vaultNotes_salt');
+                localStorage.removeItem('vaultNotes_passwordHash');
+                localStorage.removeItem('vaultNotes_data');
+                localStorage.removeItem('vaultNotes_backup');
+                localStorage.removeItem('vaultNotes_backupDate');
+                
+                // Always show setup for first-time experience
+                document.getElementById('loginSection').classList.add('hidden');
+                document.getElementById('setupSection').classList.remove('hidden');
             }
 
             async checkBiometricSupport() {
