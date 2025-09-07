@@ -175,6 +175,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            width: 100%;
         }
 
         .biometric-btn:hover {
@@ -251,6 +252,13 @@
             opacity: 0.8;
         }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
         .security-status {
             display: flex;
             align-items: center;
@@ -267,12 +275,6 @@
             background: var(--accent);
             border-radius: 50%;
             animation: pulse 2s infinite;
-        }
-
-        .lock-controls {
-            display: flex;
-            gap: 16px;
-            align-items: center;
         }
 
         .lock-btn {
@@ -377,16 +379,22 @@
             gap: 16px;
             margin-bottom: 24px;
             flex-wrap: wrap;
+            align-items: center;
         }
 
         .controls-row:last-child {
             margin-bottom: 0;
         }
 
-        .search-box {
+        .search-container {
             flex: 1;
             min-width: 300px;
-            padding: 16px 24px;
+            position: relative;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 16px 24px 16px 52px;
             background: var(--glass);
             border: 2px solid transparent;
             border-radius: 16px;
@@ -394,6 +402,16 @@
             color: white;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            opacity: 0.6;
+            font-size: 1.2rem;
         }
 
         .search-box:focus {
@@ -481,6 +499,29 @@
             box-shadow: 0 12px 40px rgba(16, 185, 129, 0.4);
         }
 
+        .sort-select {
+            min-width: 200px;
+            padding: 16px 20px;
+            background: var(--glass);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            color: white;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(15, 132, 255, 0.2);
+        }
+
+        .sort-select option {
+            background: var(--dark-light);
+            color: white;
+            padding: 8px;
+        }
+
         /* Notes Grid */
         .notes-grid {
             display: grid;
@@ -535,6 +576,7 @@
             color: white;
             margin-bottom: 8px;
             line-height: 1.3;
+            word-break: break-word;
         }
 
         .note-date {
@@ -782,34 +824,6 @@
             background: var(--warning) !important;
         }
 
-        /* Migration Section */
-        .migration-section {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 32px;
-            margin-bottom: 32px;
-            box-shadow: var(--shadow);
-        }
-
-        .migration-section h3 {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .migration-controls {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
         /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -872,11 +886,51 @@
             
             .header {
                 padding: 24px;
-                text-align: center;
             }
             
             .header-content {
                 flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-left h1 {
+                font-size: 2.2rem;
+            }
+            
+            .controls-row {
+                flex-direction: column;
+            }
+            
+            .search-container {
+                min-width: unset;
+            }
+            
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+                padding: 24px;
+            }
+            
+            .lock-container {
+                padding: 32px 24px;
+            }
+            
+            .lock-title {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-container {
+                grid-template-columns: 1fr;
             }
             
             .header-left h1 {
@@ -938,7 +992,7 @@
                     <h1>🔐 VaultNotes</h1>
                     <p>Ultra-secure encrypted note keeping with biometric protection</p>
                 </div>
-                <div class="lock-controls">
+                <div class="header-right">
                     <div class="security-status">
                         <div class="security-indicator"></div>
                         <span>Vault Secured with AES-256</span>
@@ -975,14 +1029,17 @@
 
         <div class="controls">
             <div class="controls-row">
-                <input type="text" class="search-box" id="searchInput" 
-                       placeholder="🔍 Search notes, tags, or content...">
+                <div class="search-container">
+                    <div class="search-icon">🔍</div>
+                    <input type="text" class="search-box" id="searchInput" 
+                           placeholder="Search notes, tags, or content...">
+                </div>
                 <button class="btn btn-primary" id="newNoteBtn">
                     <span>✏️</span> New Note
                 </button>
             </div>
             <div class="controls-row">
-                <select id="sortSelect" class="search-box" style="flex: none; min-width: 200px;">
+                <select id="sortSelect" class="sort-select">
                     <option value="dateDesc">📅 Newest First</option>
                     <option value="dateAsc">📅 Oldest First</option>
                     <option value="titleAsc">🔤 Title A-Z</option>
@@ -998,31 +1055,6 @@
                     <span>🗑️</span> Clear All
                 </button>
             </div>
-        </div>
-
-        <div class="migration-section">
-            <h3>
-                <span>🔄</span>
-                Device Migration & Backup
-            </h3>
-            <p style="color: var(--text-light); margin-bottom: 24px; opacity: 0.8;">
-                Securely transfer your encrypted vault to new devices or create secure backups.
-            </p>
-            <div class="migration-controls">
-                <button class="btn btn-accent" id="createMigrationBtn">
-                    <span>📦</span> Create Migration Package
-                </button>
-                <button class="btn btn-secondary" id="importMigrationBtn">
-                    <span>📥</span> Import Migration
-                </button>
-                <button class="btn btn-secondary" id="generateQRBtn">
-                    <span>📱</span> Generate QR Code
-                </button>
-                <button class="btn btn-secondary" id="createBackupBtn">
-                    <span>💾</span> Emergency Backup
-                </button>
-            </div>
-            <div id="migrationResult"></div>
         </div>
 
         <div id="notesContainer">
@@ -1068,7 +1100,7 @@
     </div>
 
     <div id="toast" class="toast"></div>
-    <input type="file" id="importFile" accept=".json,.txt" style="display: none;">
+    <input type="file" id="importFile" accept=".json,.txt,.vault,.backup" style="display: none;" multiple>
 
     <script>
         class VaultNotesApp {
@@ -1133,12 +1165,10 @@
                 );
             }
 
-            // Generate random salt
             generateSalt() {
                 return crypto.getRandomValues(new Uint8Array(16));
             }
 
-            // AES-256-GCM encryption
             async encrypt(text, key) {
                 const encoder = new TextEncoder();
                 const data = encoder.encode(text);
@@ -1150,7 +1180,6 @@
                     data
                 );
 
-                // Combine IV and encrypted data
                 const combined = new Uint8Array(iv.length + encrypted.byteLength);
                 combined.set(iv);
                 combined.set(new Uint8Array(encrypted), iv.length);
@@ -1158,7 +1187,6 @@
                 return Array.from(combined).map(b => b.toString(16).padStart(2, '0')).join('');
             }
 
-            // AES-256-GCM decryption
             async decrypt(encryptedHex, key) {
                 try {
                     const encrypted = new Uint8Array(encryptedHex.match(/.{2}/g).map(byte => parseInt(byte, 16)));
@@ -1174,6 +1202,274 @@
                     const decoder = new TextDecoder();
                     return decoder.decode(decrypted);
                 } catch (e) {
+                    console.error('Export failed:', e);
+                    this.showToast('❌ Export failed! Please try again.', 'error');
+                }
+            }
+
+            async importVault(e) {
+                if (this.isLocked) return;
+                
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+                
+                for (const file of files) {
+                    await this.processImportFile(file);
+                }
+                
+                e.target.value = '';
+            }
+
+            async processImportFile(file) {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    try {
+                        let importData;
+                        const fileContent = event.target.result;
+                        
+                        // Try to parse as JSON first
+                        try {
+                            importData = JSON.parse(fileContent);
+                        } catch {
+                            // If JSON parsing fails, try to decrypt as encrypted vault
+                            if (this.masterKey) {
+                                try {
+                                    const decryptedContent = await this.decrypt(fileContent, this.masterKey);
+                                    importData = JSON.parse(decryptedContent);
+                                } catch {
+                                    throw new Error('Unable to decrypt or parse file content');
+                                }
+                            } else {
+                                throw new Error('File appears encrypted but no master key available');
+                            }
+                        }
+                        
+                        // Validate import data structure
+                        if (!importData.notes || !Array.isArray(importData.notes)) {
+                            throw new Error('Invalid vault format - missing notes array');
+                        }
+                        
+                        const confirmMessage = `Import ${importData.notes.length} notes from ${file.name}?\n\nThis will merge with existing notes.`;
+                        if (!confirm(confirmMessage)) return;
+                        
+                        // Merge imported notes with existing ones
+                        const existingIds = new Set(this.notes.map(n => n.id));
+                        const newNotes = importData.notes.filter(note => 
+                            note && note.id && !existingIds.has(note.id)
+                        );
+                        
+                        // Validate note structure
+                        const validNotes = newNotes.filter(note => 
+                            note.title && note.content && note.createdAt
+                        );
+                        
+                        if (validNotes.length > 0) {
+                            this.notes = [...validNotes, ...this.notes];
+                            await this.saveNotesToStorage();
+                            this.updateStats();
+                            this.renderNotes();
+                            
+                            this.showToast(`✅ Successfully imported ${validNotes.length} notes from ${file.name}!`);
+                        } else {
+                            this.showToast(`⚠️ No valid notes found in ${file.name}`, 'warning');
+                        }
+                        
+                        this.resetSessionTimeout();
+                    } catch (e) {
+                        console.error('Import failed:', e);
+                        this.showToast(`❌ Failed to import ${file.name}: ${e.message}`, 'error');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            async clearAllNotes() {
+                if (this.isLocked) return;
+                
+                const confirmMessage = `⚠️ DANGER ZONE ⚠️\n\nThis will permanently delete all ${this.notes.length} encrypted notes from your vault.\n\nThis action cannot be undone!\n\nType "DELETE ALL" to confirm:`;
+                const userInput = prompt(confirmMessage);
+                
+                if (userInput === 'DELETE ALL') {
+                    this.notes = [];
+                    await this.saveNotesToStorage();
+                    this.updateStats();
+                    this.renderNotes();
+                    this.showToast('🗑️ All notes have been permanently deleted from your vault.');
+                    this.resetSessionTimeout();
+                } else if (userInput !== null) {
+                    this.showToast('❌ Deletion cancelled - incorrect confirmation text.', 'warning');
+                }
+            }
+
+            downloadFile(content, filename, mimeType) {
+                const blob = new Blob([content], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+
+            showToast(message, type = 'success') {
+                const toast = document.getElementById('toast');
+                toast.innerHTML = `
+                    <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️'}</span>
+                    <span>${message}</span>
+                `;
+                toast.className = `toast ${type === 'error' ? 'toast-error' : type === 'warning' ? 'toast-warning' : ''} show`;
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 4000);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            async registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    try {
+                        const swCode = `
+                            const CACHE_NAME = 'vaultnotes-v2-1';
+                            const urlsToCache = [];
+
+                            self.addEventListener('install', function(event) {
+                                event.waitUntil(
+                                    caches.open(CACHE_NAME)
+                                        .then(function(cache) {
+                                            return cache.addAll(urlsToCache);
+                                        })
+                                );
+                            });
+
+                            self.addEventListener('fetch', function(event) {
+                                event.respondWith(
+                                    caches.match(event.request)
+                                        .then(function(response) {
+                                            if (response) {
+                                                return response;
+                                            }
+                                            return fetch(event.request);
+                                        }
+                                    )
+                                );
+                            });
+                        `;
+                        
+                        const blob = new Blob([swCode], { type: 'application/javascript' });
+                        const swUrl = URL.createObjectURL(blob);
+                        
+                        await navigator.serviceWorker.register(swUrl);
+                        console.log('VaultNotes ServiceWorker registered successfully');
+                        
+                        URL.revokeObjectURL(swUrl);
+                    } catch (error) {
+                        console.log('ServiceWorker registration failed: ', error);
+                    }
+                }
+            }
+        }
+
+        // Initialize the app
+        const app = new VaultNotesApp();
+
+        // PWA Install functionality
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallPrompt();
+        });
+
+        function showInstallPrompt() {
+            if (document.getElementById('installPrompt')) return;
+            
+            const installPrompt = document.createElement('div');
+            installPrompt.id = 'installPrompt';
+            installPrompt.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, var(--accent), #059669);
+                color: white;
+                padding: 16px 20px;
+                border-radius: 16px;
+                box-shadow: var(--shadow);
+                z-index: 9998;
+                animation: slideInRight 0.5s ease-out;
+                max-width: 320px;
+            `;
+            installPrompt.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <span style="font-size: 1.5rem;">📱</span>
+                    <strong>Install VaultNotes</strong>
+                </div>
+                <p style="margin-bottom: 16px; font-size: 0.9rem; opacity: 0.9;">
+                    Install as an app for the ultimate secure note-taking experience
+                </p>
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="installApp()" style="background: rgba(255,255,255,0.2); border: none; 
+                            padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;">
+                        Install
+                    </button>
+                    <button onclick="dismissInstall()" style="background: transparent; border: 1px solid rgba(255,255,255,0.3); 
+                            padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer;">
+                        Later
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(installPrompt);
+        }
+
+        window.installApp = async function() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    app.showToast('🎉 VaultNotes installed successfully!');
+                }
+                deferredPrompt = null;
+                dismissInstall();
+            }
+        };
+
+        window.dismissInstall = function() {
+            const installPrompt = document.getElementById('installPrompt');
+            if (installPrompt) {
+                installPrompt.remove();
+            }
+        };
+
+        // Add slide in animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    opacity: 0;
+                    transform: translateX(100px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateX(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        console.log('🔐 VaultNotes - Ultra-Secure PWA loaded successfully!');
+        console.log('🛡️ Security Features: AES-256 encryption, PBKDF2 key derivation, Auto-lock protection');
+    </script>
+</body>
+</html>) {
                     throw new Error('Decryption failed - invalid password or corrupted data');
                 }
             }
@@ -1193,11 +1489,9 @@
                 }
 
                 try {
-                    // Generate salt and derive key
                     const salt = this.generateSalt();
                     this.masterKey = await this.deriveKey(password, salt);
 
-                    // Store salt and password hash for verification
                     const passwordHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
                     localStorage.setItem('vaultNotes_salt', Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join(''));
                     localStorage.setItem('vaultNotes_passwordHash', Array.from(new Uint8Array(passwordHash)).map(b => b.toString(16).padStart(2, '0')).join(''));
@@ -1218,7 +1512,6 @@
                 }
 
                 try {
-                    // Get stored salt and hash
                     const saltHex = localStorage.getItem('vaultNotes_salt');
                     const storedHashHex = localStorage.getItem('vaultNotes_passwordHash');
                     
@@ -1226,7 +1519,6 @@
                         throw new Error('Security data corrupted');
                     }
 
-                    // Verify password
                     const enteredHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
                     const enteredHashHex = Array.from(new Uint8Array(enteredHash)).map(b => b.toString(16).padStart(2, '0')).join('');
                     
@@ -1236,7 +1528,6 @@
                         return;
                     }
 
-                    // Derive master key
                     const salt = new Uint8Array(saltHex.match(/.{2}/g).map(byte => parseInt(byte, 16)));
                     this.masterKey = await this.deriveKey(password, salt);
 
@@ -1265,11 +1556,7 @@
                     });
 
                     if (credential) {
-                        // In a real implementation, you'd verify the credential
-                        // For demo, we'll just get the password from secure storage
                         this.showToast('🎉 Biometric authentication successful!');
-                        // Simulate getting the password from secure biometric storage
-                        // In reality, you'd use a more secure method
                         this.unlockVault();
                     }
                 } catch (e) {
@@ -1355,12 +1642,6 @@
                 document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
                 document.getElementById('importFile').addEventListener('change', (e) => this.importVault(e));
                 document.getElementById('clearAllBtn').addEventListener('click', () => this.clearAllNotes());
-
-                // Migration events
-                document.getElementById('createMigrationBtn').addEventListener('click', () => this.createMigrationPackage());
-                document.getElementById('importMigrationBtn').addEventListener('click', () => this.showImportMigration());
-                document.getElementById('generateQRBtn').addEventListener('click', () => this.generateMigrationQR());
-                document.getElementById('createBackupBtn').addEventListener('click', () => this.createEmergencyBackup());
 
                 // Activity tracking for auto-lock
                 ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
@@ -1482,7 +1763,6 @@
                 const now = new Date().toISOString();
                 
                 if (this.currentNoteId) {
-                    // Update existing note
                     const noteIndex = this.notes.findIndex(n => n.id === this.currentNoteId);
                     if (noteIndex !== -1) {
                         this.notes[noteIndex] = {
@@ -1495,7 +1775,6 @@
                         this.showToast('🔐 Note updated and encrypted successfully!');
                     }
                 } else {
-                    // Create new note
                     const newNote = {
                         id: Date.now().toString(),
                         title,
@@ -1658,540 +1937,14 @@
                     const exportData = {
                         notes: this.notes,
                         exportDate: new Date().toISOString(),
-                        version: '2.0',
+                        version: '2.1',
                         appName: 'VaultNotes',
-                        encryption: 'AES-256-GCM',
-                        security: 'Enterprise-Grade'
+                        encryption: 'AES-256-GCM'
                     };
                     
                     const dataStr = JSON.stringify(exportData, null, 2);
-                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                    const url = URL.createObjectURL(dataBlob);
-                    
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `VaultNotes_Export_${new Date().toISOString().split('T')[0]}.json`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
+                    this.downloadFile(dataStr, `VaultNotes_Export_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
                     
                     this.showToast('🔐 Vault exported successfully! Keep this file secure.');
                     this.resetSessionTimeout();
-                } catch (e) {
-                    console.error('Export failed:', e);
-                    this.showToast('❌ Export failed! Please try again.', 'error');
-                }
-            }
-
-            async importVault(e) {
-                if (this.isLocked) return;
-                
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                    try {
-                        const importData = JSON.parse(event.target.result);
-                        
-                        if (!importData.notes || !Array.isArray(importData.notes)) {
-                            throw new Error('Invalid vault format');
-                        }
-                        
-                        const confirmMessage = `🔐 Import ${importData.notes.length} encrypted notes?\n\nThis will merge with existing notes (duplicates will be skipped).`;
-                        if (!confirm(confirmMessage)) return;
-                        
-                        // Merge imported notes with existing ones
-                        const existingIds = new Set(this.notes.map(n => n.id));
-                        const newNotes = importData.notes.filter(note => !existingIds.has(note.id));
-                        
-                        this.notes = [...newNotes, ...this.notes];
-                        await this.saveNotesToStorage();
-                        this.updateStats();
-                        this.renderNotes();
-                        
-                        this.showToast(`🎉 Successfully imported ${newNotes.length} new encrypted notes!`);
-                        this.resetSessionTimeout();
-                    } catch (e) {
-                        console.error('Import failed:', e);
-                        this.showToast('❌ Import failed! Please check the vault file format.', 'error');
-                    }
-                };
-                reader.readAsText(file);
-                e.target.value = '';
-            }
-
-            async clearAllNotes() {
-                if (this.isLocked) return;
-                
-                const confirmMessage = `🚨 DANGER ZONE 🚨\n\nThis will permanently delete all ${this.notes.length} encrypted notes from your vault.\n\nThis action cannot be undone!\n\nType "DELETE ALL" to confirm:`;
-                const userInput = prompt(confirmMessage);
-                
-                if (userInput === 'DELETE ALL') {
-                    this.notes = [];
-                    await this.saveNotesToStorage();
-                    this.updateStats();
-                    this.renderNotes();
-                    this.showToast('🗑️ All notes have been permanently deleted from your vault.');
-                    this.resetSessionTimeout();
-                } else if (userInput !== null) {
-                    this.showToast('❌ Deletion cancelled - incorrect confirmation text.', 'warning');
-                }
-            }
-
-            async createMigrationPackage() {
-                if (this.isLocked || !this.masterKey) return;
-                
-                try {
-                    const migrationData = {
-                        notes: this.notes,
-                        salt: localStorage.getItem('vaultNotes_salt'),
-                        passwordHash: localStorage.getItem('vaultNotes_passwordHash'),
-                        exportDate: new Date().toISOString(),
-                        version: '2.0',
-                        appName: 'VaultNotes',
-                        encryption: 'AES-256-GCM',
-                        security: 'Military-Grade',
-                        deviceInfo: {
-                            userAgent: navigator.userAgent.substring(0, 100),
-                            platform: navigator.platform,
-                            language: navigator.language
-                        }
-                    };
-                    
-                    // Double encrypt the migration package
-                    const dataStr = JSON.stringify(migrationData);
-                    const encryptedPackage = await this.encrypt(dataStr, this.masterKey);
-                    
-                    const blob = new Blob([encryptedPackage], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `VaultNotes_Migration_${new Date().toISOString().split('T')[0]}.vault`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    
-                    this.showToast('🔐 Migration package created! Transfer securely to your new device.');
-                    this.resetSessionTimeout();
-                    
-                    // Show migration result
-                    document.getElementById('migrationResult').innerHTML = `
-                        <div style="background: var(--glass); padding: 24px; border-radius: 16px; margin-top: 16px; border: 1px solid var(--glass-border);">
-                            <h4 style="color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                                <span>✅</span> Migration Package Created
-                            </h4>
-                            <p style="color: var(--text-light); margin-bottom: 16px;">
-                                Your encrypted vault has been packaged for secure transfer. The file contains:
-                            </p>
-                            <ul style="color: var(--text-light); margin-bottom: 20px; padding-left: 20px; opacity: 0.8;">
-                                <li>🔐 ${this.notes.length} encrypted notes</li>
-                                <li>🔑 Security credentials</li>
-                                <li>📊 Vault metadata</li>
-                                <li>🛡️ AES-256 encryption</li>
-                            </ul>
-                            <div style="background: rgba(15, 132, 255, 0.1); padding: 16px; border-radius: 12px; border: 1px solid rgba(15, 132, 255, 0.2);">
-                                <p style="color: var(--primary); font-weight: 600; margin-bottom: 8px;">🔒 Security Note:</p>
-                                <p style="color: var(--text-light); font-size: 0.9rem;">
-                                    Keep this file secure! It contains your master password hash and can unlock your entire vault.
-                                </p>
-                            </div>
-                        </div>
-                    `;
-                } catch (e) {
-                    console.error('Migration creation failed:', e);
-                    this.showToast('❌ Failed to create migration package!', 'error');
-                }
-            }
-
-            showImportMigration() {
-                document.getElementById('migrationResult').innerHTML = `
-                    <div style="background: var(--glass); padding: 24px; border-radius: 16px; margin-top: 16px; border: 1px solid var(--glass-border);">
-                        <h4 style="color: white; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                            <span>📥</span> Import Migration Package
-                        </h4>
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 12px; font-weight: 600; color: white;">
-                                Select migration vault file:
-                            </label>
-                            <input type="file" id="migrationFileInput" accept=".vault,.txt,.json" 
-                                   style="width: 100%; padding: 12px; background: var(--glass); border: 1px solid var(--glass-border); 
-                                          border-radius: 12px; color: white; margin-bottom: 16px;">
-                            <button class="btn btn-primary" onclick="app.importMigrationFile()" style="width: 100%;">
-                                <span>🔐</span> Import Encrypted Vault
-                            </button>
-                        </div>
-                        <div style="border-top: 1px solid var(--glass-border); padding-top: 20px;">
-                            <label style="display: block; margin-bottom: 12px; font-weight: 600; color: white;">
-                                Or paste migration data directly:
-                            </label>
-                            <textarea id="migrationTextInput" placeholder="Paste your encrypted migration data here..." 
-                                      style="width: 100%; height: 120px; padding: 16px; background: var(--glass); 
-                                             border: 1px solid var(--glass-border); border-radius: 12px; color: white; 
-                                             font-family: 'Courier New', monospace; font-size: 12px; resize: vertical;"></textarea>
-                            <button class="btn btn-accent" onclick="app.importMigrationText()" style="margin-top: 12px; width: 100%;">
-                                <span>📋</span> Import from Text
-                            </button>
-                        </div>
-                        <div style="margin-top: 20px; padding: 16px; background: rgba(245, 158, 11, 0.1); 
-                                    border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.2);">
-                            <p style="color: var(--warning); font-weight: 600; margin-bottom: 8px;">⚠️ Important:</p>
-                            <p style="color: var(--text-light); font-size: 0.9rem;">
-                                Migration will merge notes from the package with your current vault. 
-                                Make sure you have the same master password as the source device.
-                            </p>
-                        </div>
-                    </div>
-                `;
-            }
-
-            async importMigrationFile() {
-                const fileInput = document.getElementById('migrationFileInput');
-                const file = fileInput.files[0];
-                
-                if (!file) {
-                    this.showToast('📁 Please select a migration file first!', 'error');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const migrationData = e.target.result;
-                    await this.processMigrationData(migrationData);
-                };
-                reader.readAsText(file);
-            }
-
-            async importMigrationText() {
-                const textInput = document.getElementById('migrationTextInput');
-                const migrationData = textInput.value.trim();
-                
-                if (!migrationData) {
-                    this.showToast('📝 Please paste migration data first!', 'error');
-                    return;
-                }
-                
-                await this.processMigrationData(migrationData);
-                textInput.value = '';
-            }
-
-            async processMigrationData(encryptedData) {
-                if (this.isLocked || !this.masterKey) return;
-                
-                try {
-                    // Try to decrypt with current master key
-                    const decryptedData = await this.decrypt(encryptedData, this.masterKey);
-                    const migrationPackage = JSON.parse(decryptedData);
-                    
-                    if (!migrationPackage.notes || !Array.isArray(migrationPackage.notes)) {
-                        throw new Error('Invalid migration package format');
-                    }
-                    
-                    const confirmMessage = `🔐 Import ${migrationPackage.notes.length} notes from migration package?\n\nSource: ${migrationPackage.appName} v${migrationPackage.version}\nCreated: ${new Date(migrationPackage.exportDate).toLocaleString()}\n\nThis will merge with your current vault.`;
-                    
-                    if (!confirm(confirmMessage)) return;
-                    
-                    // Merge notes
-                    const existingIds = new Set(this.notes.map(n => n.id));
-                    const newNotes = migrationPackage.notes.filter(note => !existingIds.has(note.id));
-                    
-                    this.notes = [...newNotes, ...this.notes];
-                    await this.saveNotesToStorage();
-                    this.updateStats();
-                    this.renderNotes();
-                    
-                    this.showToast(`🎉 Successfully migrated ${newNotes.length} encrypted notes!`);
-                    document.getElementById('migrationResult').innerHTML = '';
-                    this.resetSessionTimeout();
-                    
-                } catch (e) {
-                    console.error('Migration failed:', e);
-                    this.showToast('❌ Migration failed! Wrong password or corrupted data.', 'error');
-                }
-            }
-
-            generateMigrationQR() {
-                this.showToast('🚧 QR Code generation coming soon! Use file export for now.', 'warning');
-                
-                document.getElementById('migrationResult').innerHTML = `
-                    <div style="background: var(--glass); padding: 24px; border-radius: 16px; margin-top: 16px; border: 1px solid var(--glass-border); text-align: center;">
-                        <div style="font-size: 4rem; margin-bottom: 20px;">📱</div>
-                        <h4 style="color: white; margin-bottom: 16px;">QR Code Migration</h4>
-                        <p style="color: var(--text-light); margin-bottom: 20px;">
-                            QR code generation for large vaults is being optimized for security and performance.
-                        </p>
-                        <div style="background: rgba(15, 132, 255, 0.1); padding: 16px; border-radius: 12px; border: 1px solid rgba(15, 132, 255, 0.2);">
-                            <p style="color: var(--primary); font-weight: 600; margin-bottom: 8px;">💡 Alternative:</p>
-                            <p style="color: var(--text-light); font-size: 0.9rem;">
-                                Use the "Create Migration Package" button above to generate a secure .vault file that can be transferred via any secure method.
-                            </p>
-                        </div>
-                    </div>
-                `;
-            }
-
-            async createEmergencyBackup() {
-                if (this.isLocked || !this.masterKey) return;
-                
-                try {
-                    const backupData = {
-                        notes: this.notes,
-                        salt: localStorage.getItem('vaultNotes_salt'),
-                        passwordHash: localStorage.getItem('vaultNotes_passwordHash'),
-                        backupDate: new Date().toISOString(),
-                        backupType: 'emergency',
-                        version: '2.0',
-                        appName: 'VaultNotes',
-                        encryption: 'AES-256-GCM',
-                        instructions: {
-                            restore: 'Import this file using VaultNotes migration feature',
-                            security: 'This backup contains encrypted data and security credentials',
-                            password: 'Use the same master password as when backup was created'
-                        }
-                    };
-                    
-                    // Triple encryption for emergency backup
-                    let dataStr = JSON.stringify(backupData, null, 2);
-                    for (let i = 0; i < 3; i++) {
-                        dataStr = await this.encrypt(dataStr, this.masterKey);
-                    }
-                    
-                    const blob = new Blob([dataStr], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `VaultNotes_EMERGENCY_BACKUP_${new Date().toISOString().split('T')[0]}.backup`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                    
-                    this.showToast('🛡️ Emergency backup created with triple encryption!');
-                    this.resetSessionTimeout();
-                    
-                    document.getElementById('migrationResult').innerHTML = `
-                        <div style="background: var(--glass); padding: 24px; border-radius: 16px; margin-top: 16px; border: 1px solid var(--glass-border);">
-                            <h4 style="color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-                                <span>🛡️</span> Emergency Backup Created
-                            </h4>
-                            <p style="color: var(--text-light); margin-bottom: 16px;">
-                                Your vault has been secured with a triple-encrypted emergency backup.
-                            </p>
-                            <div style="background: rgba(239, 68, 68, 0.1); padding: 16px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2);">
-                                <p style="color: var(--danger); font-weight: 600; margin-bottom: 8px;">🚨 CRITICAL:</p>
-                                <p style="color: var(--text-light); font-size: 0.9rem;">
-                                    Store this backup in a secure location! It contains your entire vault and can restore everything if you lose access to this device.
-                                </p>
-                            </div>
-                        </div>
-                    `;
-                } catch (e) {
-                    console.error('Emergency backup failed:', e);
-                    this.showToast('❌ Emergency backup failed!', 'error');
-                }
-            }
-
-            showToast(message, type = 'success') {
-                const toast = document.getElementById('toast');
-                toast.innerHTML = `
-                    <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️'}</span>
-                    <span>${message}</span>
-                `;
-                toast.className = `toast ${type === 'error' ? 'toast-error' : type === 'warning' ? 'toast-warning' : ''} show`;
-                
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 4000);
-            }
-
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            async registerServiceWorker() {
-                if ('serviceWorker' in navigator) {
-                    try {
-                        const swCode = `
-                            const CACHE_NAME = 'vaultnotes-v2';
-                            const urlsToCache = [];
-
-                            self.addEventListener('install', function(event) {
-                                event.waitUntil(
-                                    caches.open(CACHE_NAME)
-                                        .then(function(cache) {
-                                            return cache.addAll(urlsToCache);
-                                        })
-                                );
-                            });
-
-                            self.addEventListener('fetch', function(event) {
-                                event.respondWith(
-                                    caches.match(event.request)
-                                        .then(function(response) {
-                                            if (response) {
-                                                return response;
-                                            }
-                                            return fetch(event.request);
-                                        }
-                                    )
-                                );
-                            });
-                        `;
-                        
-                        const blob = new Blob([swCode], { type: 'application/javascript' });
-                        const swUrl = URL.createObjectURL(blob);
-                        
-                        await navigator.serviceWorker.register(swUrl);
-                        console.log('VaultNotes ServiceWorker registered successfully');
-                        
-                        URL.revokeObjectURL(swUrl);
-                    } catch (error) {
-                        console.log('ServiceWorker registration failed: ', error);
-                    }
-                }
-            }
-        }
-
-        // Initialize the app
-        const app = new VaultNotesApp();
-
-        // PWA Install functionality
-        let deferredPrompt;
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            showInstallPrompt();
-        });
-
-        function showInstallPrompt() {
-            if (document.getElementById('installPrompt')) return; // Prevent duplicates
-            
-            const installPrompt = document.createElement('div');
-            installPrompt.id = 'installPrompt';
-            installPrompt.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, var(--accent), #059669);
-                color: white;
-                padding: 16px 20px;
-                border-radius: 16px;
-                box-shadow: var(--shadow);
-                z-index: 9998;
-                animation: slideInRight 0.5s ease-out;
-                max-width: 320px;
-            `;
-            installPrompt.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <span style="font-size: 1.5rem;">📱</span>
-                    <strong>Install VaultNotes</strong>
-                </div>
-                <p style="margin-bottom: 16px; font-size: 0.9rem; opacity: 0.9;">
-                    Install as an app for the ultimate secure note-taking experience
-                </p>
-                <div style="display: flex; gap: 12px;">
-                    <button onclick="installApp()" style="background: rgba(255,255,255,0.2); border: none; 
-                            padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;">
-                        Install
-                    </button>
-                    <button onclick="dismissInstall()" style="background: transparent; border: 1px solid rgba(255,255,255,0.3); 
-                            padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer;">
-                        Later
-                    </button>
-                </div>
-            `;
-            
-            document.body.appendChild(installPrompt);
-        }
-
-        window.installApp = async function() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    app.showToast('🎉 VaultNotes installed successfully!');
-                }
-                deferredPrompt = null;
-                dismissInstall();
-            }
-        };
-
-        window.dismissInstall = function() {
-            const installPrompt = document.getElementById('installPrompt');
-            if (installPrompt) {
-                installPrompt.remove();
-            }
-        };
-
-        // Add slide in animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from {
-                    opacity: 0;
-                    transform: translateX(100px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
-        console.log('🔐 VaultNotes - Ultra-Secure PWA loaded successfully!');
-        console.log('🛡️ Security Features: AES-256 encryption, PBKDF2 key derivation, Auto-lock protection');
-    </script>
-</body>
-</html>size: 2.2rem;
-            }
-            
-            .controls-row {
-                flex-direction: column;
-            }
-            
-            .search-box {
-                min-width: unset;
-            }
-            
-            .notes-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 10% auto;
-                padding: 24px;
-            }
-            
-            .lock-container {
-                padding: 32px 24px;
-            }
-            
-            .lock-title {
-                font-size: 2rem;
-            }
-            
-            .migration-controls {
-                flex-direction: column;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .header-left h1 {
-                font-
+                } catch (e)
