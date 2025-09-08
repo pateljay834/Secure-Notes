@@ -3,1951 +3,667 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VaultNotes - Ultra-Secure Personal Notes</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="description" content="Ultra-secure, encrypted personal note keeping app with biometric protection">
-    <meta name="theme-color" content="#0f172a">
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVmF1bHROb3RlcyIsInNob3J0X25hbWUiOiJWYXVsdE5vdGVzIiwiZGVzY3JpcHRpb24iOiJVbHRyYS1zZWN1cmUsIGVuY3J5cHRlZCBwZXJzb25hbCBub3RlIGtlZXBpbmcgYXBwIiwic3RhcnRfdXJsIjoiLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwZjE3MmEiLCJ0aGVtZV9jb2xvciI6IiMwZjE3MmEiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5Micgdmlld0JveD0nMCAwIDI0IDI0JyBmaWxsPSdub25lJyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnJTNFJTNDcGF0aCBkPSdNNCA2aDE2djEySDE2djJhMiAyIDAgMCAxLTIgMkg2YTIgMiAwIDAgMS0yLTJWOGEyIDIgMCAwIDEgMi0yaDJWNGEyIDIgMCAwIDEgMi0yaDRhMiAyIDAgMCAxIDIgMnYyeicgZmlsbD0nJTIzMGY4NGZmJy8lM0UlM0MvcmVjdCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6h16v12H16v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2z' fill='%230f84ff'/%3E%3C/svg%3E">
+    <title>NoteSphere - Local & Secure Notes</title>
+    <meta name="description" content="A secure, private, and offline-first notes app with local encrypted storage.">
+    <meta name="theme-color" content="#1a202c">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        html, body {
+            height: 100%;
+            overflow: hidden;
         }
-
-        :root {
-            --primary: #0f84ff;
-            --primary-dark: #0066cc;
-            --secondary: #6366f1;
-            --accent: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #0f172a;
-            --dark-light: #1e293b;
-            --dark-lighter: #334155;
-            --light: #f8fafc;
-            --light-gray: #e2e8f0;
-            --text-light: #cbd5e1;
-            --text-dark: #1e293b;
-            --glass: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            --shadow-lg: 0 35px 80px -15px rgba(0, 0, 0, 0.6);
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--dark) 0%, #1a1d3a 50%, #0f0f1e 100%);
-            min-height: 100vh;
-            color: var(--text-light);
-            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* bg-gray-900 */
+            color: #e2e8f0; /* slate-200 */
         }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(15, 132, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        /* Security Lock Screen */
-        .lock-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, var(--dark) 0%, #1a1d3a 100%);
-            z-index: 10000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(20px);
-        }
-
-        .lock-container {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 48px;
-            text-align: center;
-            box-shadow: var(--shadow-lg);
-            max-width: 480px;
-            width: 90%;
-            animation: slideInUp 0.8s ease-out;
-        }
-
-        .lock-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 32px;
-            font-size: 2rem;
-            animation: pulse 2s infinite;
-        }
-
-        .lock-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 16px;
-        }
-
-        .lock-subtitle {
-            color: var(--text-light);
-            font-size: 1.1rem;
-            margin-bottom: 40px;
-            opacity: 0.8;
-        }
-
-        .password-input {
-            width: 100%;
-            padding: 20px 24px;
-            background: var(--glass);
-            border: 2px solid transparent;
-            border-radius: 16px;
-            font-size: 1.1rem;
-            color: white;
-            margin-bottom: 24px;
-            transition: all 0.3s ease;
+        /* Simple scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #2d3748; }
+        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #718096; }
+        
+        .glass-card {
+            background: rgba(45, 55, 72, 0.7);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .password-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(15, 132, 255, 0.2);
-            transform: scale(1.02);
-        }
-
-        .password-input::placeholder {
-            color: var(--text-light);
-            opacity: 0.6;
-        }
-
-        .unlock-btn {
-            width: 100%;
-            padding: 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border: none;
-            border-radius: 16px;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 16px;
-        }
-
-        .unlock-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(15, 132, 255, 0.4);
-        }
-
-        .biometric-btn {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 16px;
-            color: var(--text-light);
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-        }
-
-        .biometric-btn:hover {
-            background: var(--glass-border);
-            transform: translateY(-1px);
-        }
-
-        .setup-section {
-            margin-top: 32px;
-            padding-top: 32px;
-            border-top: 1px solid var(--glass-border);
-        }
-
-        .setup-section h3 {
-            color: var(--text-light);
-            margin-bottom: 16px;
-            font-size: 1.2rem;
-        }
-
-        /* Main App Container */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 24px;
-            min-height: 100vh;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.8s ease-out 0.2s forwards;
-        }
-
-        /* Header */
-        .header {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 32px;
-            margin-bottom: 32px;
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 24px;
-        }
-
-        .header-left h1 {
-            font-size: 3rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-        }
-
-        .header-left p {
-            color: var(--text-light);
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .security-status {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--glass);
-            padding: 16px 24px;
-            border-radius: 16px;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .security-indicator {
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        .lock-btn {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
-            border: none;
-            border-radius: 12px;
-            padding: 12px 20px;
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .lock-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
-        }
-
-        /* Stats Section */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 28px;
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow);
-        }
-
-        .stat-card:hover::before {
-            opacity: 1;
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px;
-            font-size: 1.5rem;
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: white;
-            margin-bottom: 8px;
-        }
-
-        .stat-label {
-            color: var(--text-light);
-            font-size: 0.95rem;
-            opacity: 0.8;
-        }
-
-        /* Controls */
-        .controls {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 32px;
-            margin-bottom: 32px;
-            box-shadow: var(--shadow);
-        }
-
-        .controls-row {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .controls-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .search-container {
-            flex: 1;
-            min-width: 300px;
-            position: relative;
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 16px 24px 16px 52px;
-            background: var(--glass);
-            border: 2px solid transparent;
-            border-radius: 16px;
-            font-size: 1rem;
-            color: white;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-light);
-            opacity: 0.6;
-            font-size: 1.2rem;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(15, 132, 255, 0.2);
-            transform: scale(1.02);
-        }
-
-        .search-box::placeholder {
-            color: var(--text-light);
-            opacity: 0.6;
-        }
-
-        .btn {
-            padding: 16px 24px;
-            border: none;
-            border-radius: 16px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(15, 132, 255, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            color: var(--text-light);
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-secondary:hover {
-            background: var(--glass-border);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(239, 68, 68, 0.4);
-        }
-
-        .btn-accent {
-            background: linear-gradient(135deg, var(--accent), #059669);
-            color: white;
-        }
-
-        .btn-accent:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(16, 185, 129, 0.4);
-        }
-
-        .sort-select {
-            min-width: 200px;
-            padding: 16px 20px;
-            background: var(--glass);
-            border: 2px solid transparent;
-            border-radius: 16px;
-            color: white;
-            font-size: 1rem;
-            backdrop-filter: blur(10px);
-        }
-
-        .sort-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(15, 132, 255, 0.2);
-        }
-
-        .sort-select option {
-            background: var(--dark-light);
-            color: white;
-            padding: 8px;
-        }
-
-        /* Notes Grid */
-        .notes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-
-        .note-card {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 28px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .note-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .note-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .note-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .note-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
-        }
-
-        .note-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: white;
-            margin-bottom: 8px;
-            line-height: 1.3;
-            word-break: break-word;
-        }
-
-        .note-date {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            opacity: 0.7;
-        }
-
-        .note-actions {
-            display: flex;
-            gap: 8px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .note-card:hover .note-actions {
-            opacity: 1;
-        }
-
-        .note-action-btn {
-            width: 36px;
-            height: 36px;
-            border: none;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .note-action-btn.duplicate {
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--secondary);
-        }
-
-        .note-action-btn.delete {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-        }
-
-        .note-action-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .note-content {
-            color: var(--text-light);
-            line-height: 1.6;
-            margin-bottom: 20px;
-            max-height: 120px;
-            overflow: hidden;
-            word-wrap: break-word;
-        }
-
-        .note-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .tag {
-            background: linear-gradient(135deg, var(--secondary), #8b5cf6);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .tag:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-
-        /* Modal */
+        .hidden { display: none; }
         .modal {
-            display: none;
             position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            animation: fadeIn 0.3s ease-out;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
         }
-
         .modal-content {
-            background: var(--dark-light);
-            margin: 3% auto;
-            padding: 40px;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 700px;
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--glass-border);
-            animation: modalSlideIn 0.4s ease-out;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .modal-header h2 {
-            color: white;
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        .close {
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: var(--glass);
-            color: var(--text-light);
-            border-radius: 12px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .close:hover {
-            background: var(--danger);
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 12px;
-            font-weight: 600;
-            color: white;
-            font-size: 1.1rem;
-        }
-
-        .form-group input,
-        .form-group textarea {
+            background-color: #2d3748; /* bg-gray-800 */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
             width: 100%;
-            padding: 16px 20px;
-            background: var(--glass);
-            border: 2px solid transparent;
-            border-radius: 16px;
-            font-size: 1rem;
-            color: white;
-            transition: all 0.3s ease;
-            font-family: inherit;
-            backdrop-filter: blur(10px);
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(15, 132, 255, 0.2);
-            transform: scale(1.02);
-        }
-
-        .form-group textarea {
-            min-height: 200px;
-            resize: vertical;
-            line-height: 1.6;
-        }
-
-        .form-group input::placeholder,
-        .form-group textarea::placeholder {
-            color: var(--text-light);
-            opacity: 0.6;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: var(--text-light);
-        }
-
-        .empty-icon {
-            width: 120px;
-            height: 120px;
-            background: var(--glass);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 32px;
-            font-size: 3rem;
-            border: 1px solid var(--glass-border);
-        }
-
-        .empty-state h3 {
-            font-size: 2rem;
-            margin-bottom: 16px;
-            color: white;
-            font-weight: 700;
-        }
-
-        .empty-state p {
-            font-size: 1.1rem;
-            opacity: 0.8;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            background: var(--accent);
-            color: white;
-            padding: 20px 28px;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            z-index: 10001;
-            transform: translateX(400px);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        .toast-error {
-            background: var(--danger) !important;
-        }
-
-        .toast-warning {
-            background: var(--warning) !important;
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeInUp {
-            from { 
-                opacity: 0; 
-                transform: translateY(30px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-
-        @keyframes slideInUp {
-            from { 
-                opacity: 0; 
-                transform: translateY(50px) scale(0.9); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0) scale(1); 
-            }
-        }
-
-        @keyframes modalSlideIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(-50px) scale(0.9); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0) scale(1); 
-            }
-        }
-
-        @keyframes pulse {
-            0%, 100% { 
-                transform: scale(1); 
-                opacity: 1; 
-            }
-            50% { 
-                transform: scale(1.05); 
-                opacity: 0.8; 
-            }
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                padding: 16px;
-            }
-            
-            .header {
-                padding: 24px;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .header-left h1 {
-                font-size: 2.2rem;
-            }
-            
-            .controls-row {
-                flex-direction: column;
-            }
-            
-            .search-container {
-                min-width: unset;
-            }
-            
-            .notes-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 10% auto;
-                padding: 24px;
-            }
-            
-            .lock-container {
-                padding: 32px 24px;
-            }
-            
-            .lock-title {
-                font-size: 2rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .header-left h1 {
-                font-size: 1.8rem;
-            }
+            max-width: 28rem; /* lg */
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
         }
     </style>
 </head>
-<body>
-    <!-- Security Lock Screen -->
-    <div id="lockScreen" class="lock-screen">
-        <div class="lock-container">
-            <div class="lock-icon">
-                <span>🔐</span>
-            </div>
-            <h1 class="lock-title">VaultNotes</h1>
-            <p class="lock-subtitle">Enter your master password to unlock your secure notes</p>
-            
-            <div id="loginSection">
-                <input type="password" id="masterPassword" class="password-input" 
-                       placeholder="Master Password" autocomplete="current-password">
-                <button id="unlockBtn" class="unlock-btn">🔓 Unlock Vault</button>
-                <button id="biometricBtn" class="biometric-btn hidden">
-                    <span>👆</span> Use Biometric Authentication
-                </button>
-            </div>
-            
-            <div id="setupSection" class="setup-section hidden">
-                <h3>🛡️ First Time Setup</h3>
-                <p style="color: var(--text-light); margin-bottom: 20px; opacity: 0.8;">
-                    Create a strong master password to secure your notes with military-grade encryption.
-                </p>
-                <input type="password" id="newPassword" class="password-input" 
-                       placeholder="Create Master Password" autocomplete="new-password">
-                <input type="password" id="confirmPassword" class="password-input" 
-                       placeholder="Confirm Master Password" autocomplete="new-password">
-                <div style="margin-bottom: 20px; font-size: 0.9rem; color: var(--text-light); opacity: 0.7;">
-                    <p>💡 Tips for a strong password:</p>
-                    <ul style="margin-top: 8px; padding-left: 20px;">
-                        <li>Use at least 12 characters</li>
-                        <li>Mix letters, numbers, and symbols</li>
-                        <li>Avoid common words or patterns</li>
-                    </ul>
-                </div>
-                <button id="setupBtn" class="unlock-btn">🛡️ Secure My Notes</button>
-            </div>
-            
-            <div style="margin-top: 24px; font-size: 0.8rem; opacity: 0.6; text-align: center;">
-                <p>🔒 AES-256 Encryption • 🔑 PBKDF2 Key Derivation • 🛡️ Zero-Knowledge Architecture</p>
-            </div>
+<body class="flex h-screen w-full">
+
+    <!-- App Loader -->
+    <div id="loader" class="flex items-center justify-center h-screen w-full">
+        <div class="text-center">
+            <svg class="animate-spin h-10 w-10 text-indigo-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <p id="loader-message" class="text-xl font-semibold text-slate-300">Initializing Secure Storage...</p>
         </div>
     </div>
 
-    <!-- Main App -->
-    <div class="container" id="mainApp">
-        <div class="header">
-            <div class="header-content">
-                <div class="header-left">
-                    <h1>🔐 VaultNotes</h1>
-                    <p>Ultra-secure encrypted note keeping with biometric protection</p>
+    <!-- Password Prompt -->
+    <div id="password-prompt" class="hidden w-full h-full items-center justify-center p-4">
+        <div class="w-full max-w-md p-8 space-y-6 glass-card rounded-xl shadow-lg">
+            <div class="text-center">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-indigo-400"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <h1 id="password-title" class="text-3xl font-bold text-white mt-4">Unlock Your Notes</h1>
+                <p id="password-subtitle" class="text-slate-400 mt-2">Enter your password to decrypt your notes.</p>
+            </div>
+            <form id="password-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300">Password</label>
+                    <input type="password" id="password-input" class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-slate-600 rounded-md text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
                 </div>
-                <div class="header-right">
-                    <div class="security-status">
-                        <div class="security-indicator"></div>
-                        <span>Vault Secured with AES-256</span>
-                    </div>
-                    <button class="lock-btn" id="lockVaultBtn">
-                        <span>🔒</span> Lock Vault
-                    </button>
+                <div id="confirm-password-container" class="hidden">
+                    <label class="block text-sm font-medium text-slate-300">Confirm Password</label>
+                    <input type="password" id="confirm-password-input" class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-slate-600 rounded-md text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
-            </div>
-        </div>
-
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-icon">📝</div>
-                <div class="stat-number" id="totalNotes">0</div>
-                <div class="stat-label">Total Notes</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">📊</div>
-                <div class="stat-number" id="totalWords">0</div>
-                <div class="stat-label">Total Words</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🏷️</div>
-                <div class="stat-number" id="totalTags">0</div>
-                <div class="stat-label">Unique Tags</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🔐</div>
-                <div class="stat-number" id="encryptionLevel">256</div>
-                <div class="stat-label">Encryption Bits</div>
-            </div>
-        </div>
-
-        <div class="controls">
-            <div class="controls-row">
-                <div class="search-container">
-                    <div class="search-icon">🔍</div>
-                    <input type="text" class="search-box" id="searchInput" 
-                           placeholder="Search notes, tags, or content...">
-                </div>
-                <button class="btn btn-primary" id="newNoteBtn">
-                    <span>✏️</span> New Note
+                <p id="password-error" class="text-red-400 text-sm h-5"></p>
+                <button type="submit" id="password-submit-button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-900 disabled:bg-indigo-800 disabled:cursor-not-allowed">
+                    Unlock
                 </button>
-            </div>
-            <div class="controls-row">
-                <select id="sortSelect" class="sort-select">
-                    <option value="dateDesc">📅 Newest First</option>
-                    <option value="dateAsc">📅 Oldest First</option>
-                    <option value="titleAsc">🔤 Title A-Z</option>
-                    <option value="titleDesc">🔤 Title Z-A</option>
-                </select>
-                <button class="btn btn-secondary" id="exportBtn">
-                    <span>📤</span> Export Vault
-                </button>
-                <button class="btn btn-secondary" id="importBtn">
-                    <span>📥</span> Import Vault
-                </button>
-                <button class="btn btn-danger" id="clearAllBtn">
-                    <span>🗑️</span> Clear All
-                </button>
-            </div>
-        </div>
-
-        <div id="notesContainer">
-            <div class="notes-grid" id="notesGrid"></div>
-            <div class="empty-state hidden" id="emptyState">
-                <div class="empty-icon">📝</div>
-                <h3>Your vault is empty</h3>
-                <p>Create your first encrypted note to get started!</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Note Modal -->
-    <div id="noteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">New Secure Note</h2>
-                <button class="close" id="closeModal">&times;</button>
-            </div>
-            <form id="noteForm">
-                <div class="form-group">
-                    <label for="noteTitle">🏷️ Title</label>
-                    <input type="text" id="noteTitle" placeholder="Enter note title..." required>
-                </div>
-                <div class="form-group">
-                    <label for="noteContent">📝 Content</label>
-                    <textarea id="noteContent" placeholder="Write your secure note here..." required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="noteTags">🏷️ Tags (comma-separated)</label>
-                    <input type="text" id="noteTags" placeholder="work, personal, ideas, confidential...">
-                </div>
-                <div class="controls-row">
-                    <button type="submit" class="btn btn-primary" id="saveNoteBtn">
-                        <span>🔐</span> Save Encrypted
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="cancelBtn">
-                        <span>❌</span> Cancel
-                    </button>
-                </div>
             </form>
         </div>
     </div>
+    
+    <!-- Main App UI -->
+    <div id="app-container" class="hidden h-full w-full md:flex">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-80 h-full bg-gray-900/80 backdrop-blur-md border-r border-slate-700/50 flex-shrink-0 flex flex-col p-4 transition-all duration-300 ease-in-out">
+            <header class="flex items-center justify-between mb-4">
+                <h1 class="text-2xl font-bold text-slate-100">NoteSphere</h1>
+                <div class="flex items-center space-x-2">
+                    <button id="settings-button" class="p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-700" title="Settings">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.4l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.4l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    </button>
+                    <button id="sidebar-close-button" class="md:hidden p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+            </header>
+            <button id="new-note-button" class="flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                New Note
+            </button>
+            <div class="relative mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="search-input" placeholder="Search notes..." class="w-full bg-gray-800 border border-slate-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div id="notes-list-container" class="flex-1 overflow-y-auto -mr-2 pr-2">
+                <ul id="notes-list"></ul>
+                <div id="no-notes-message" class="text-center text-slate-500 pt-10 px-4 hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <p>No notes found.</p>
+                </div>
+            </div>
+        </aside>
 
-    <div id="toast" class="toast"></div>
-    <input type="file" id="importFile" accept=".json,.txt,.vault,.backup" style="display: none;" multiple>
+        <!-- Editor -->
+        <main id="editor-container" class="flex-1 flex flex-col min-w-0 bg-gray-800/50">
+            <!-- Welcome Screen -->
+            <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-slate-600">
+                <button id="sidebar-open-button" class="absolute top-4 left-4 p-2 text-slate-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <h2 class="mt-4 text-xl font-medium">Select a note to view</h2>
+                <p>Or create a new one to get started.</p>
+            </div>
+            
+            <!-- Note Editor -->
+            <div id="note-editor" class="hidden h-full flex-col">
+                 <header class="flex items-center justify-between p-4 border-b border-slate-700/50 flex-shrink-0">
+                    <div class="flex items-center space-x-4">
+                        <button id="editor-sidebar-button" class="p-2 text-slate-400 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        </button>
+                        <div id="color-palette" class="items-center space-x-2 hidden"></div>
+                    </div>
+                    <div id="editor-buttons" class="flex items-center space-x-3"></div>
+                </header>
+                <div class="flex-1 p-6 overflow-y-auto">
+                    <input type="text" id="note-title-input" placeholder="Note Title" class="w-full text-4xl font-bold bg-transparent focus:outline-none mb-4 text-slate-100 placeholder-slate-500" disabled>
+                    <textarea id="note-content-input" placeholder="Start writing..." class="w-full h-full text-lg bg-transparent focus:outline-none resize-none text-slate-300 placeholder-slate-600" style="min-height: calc(100vh - 200px);" disabled></textarea>
+                </div>
+            </div>
+        </main>
+    </div>
 
-    <script>
-        class VaultNotesApp {
-            constructor() {
-                this.notes = [];
-                this.currentNoteId = null;
-                this.isLocked = true;
-                this.masterKey = null;
-                this.sessionTimeout = 15 * 60 * 1000; // 15 minutes
-                this.timeoutId = null;
-                this.init();
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-white">Settings & Data</h2>
+                <button id="settings-close-button" class="p-2 rounded-full hover:bg-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="p-4 bg-yellow-900/50 border border-yellow-700 rounded-lg text-yellow-200 text-sm flex items-start space-x-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <div>
+                    <strong>Important:</strong> Your password is the key. If you forget it, your data cannot be recovered. Keep your backup text and password safe.
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <label class="font-semibold text-slate-200">Export / Backup</label>
+                <p class="text-sm text-slate-400">Click the button, then copy the text from the box and save it to a safe file.</p>
+                <button id="export-button" class="w-full flex items-center justify-center space-x-2 p-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold transition">
+                    Generate Backup Text
+                </button>
+                <textarea id="export-data-area" class="w-full h-24 bg-gray-900 text-slate-300 rounded-md p-2 text-xs font-mono hidden" readonly></textarea>
+            </div>
+            
+             <div class="space-y-2">
+                <label class="font-semibold text-slate-200">Import / Restore</label>
+                 <p class="text-sm text-slate-400">Paste your backup text into the box below and click import. <strong>This will overwrite all current data.</strong></p>
+                <textarea id="import-data-area" class="w-full h-24 bg-gray-900 text-slate-300 rounded-md p-2 text-xs font-mono" placeholder="Paste your backup text here..."></textarea>
+                <button id="import-button" class="w-full flex items-center justify-center space-x-2 p-3 bg-green-600 hover:bg-green-500 rounded-lg font-semibold transition">
+                    Import and Overwrite Data
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Confirm Modal -->
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content space-y-4 text-center">
+            <h3 id="confirm-title" class="text-xl font-bold text-white">Are you sure?</h3>
+            <p id="confirm-message" class="text-slate-300">This action cannot be undone.</p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirm-cancel-button" class="px-6 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 font-semibold">Cancel</button>
+                <button id="confirm-ok-button" class="px-6 py-2 rounded-lg bg-red-600 hover:bg-red-500 font-semibold text-white">Proceed</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- STATE MANAGEMENT ---
+        let state = {
+            encryptionKey: null,
+            notes: [],
+            selectedNoteId: null,
+            isEditing: false,
+            isCreating: false,
+        };
+
+        // --- DOM ELEMENTS ---
+        const $ = (selector) => document.querySelector(selector);
+        const dom = {
+            loader: $('#loader'),
+            loaderMessage: $('#loader-message'),
+            passwordPrompt: $('#password-prompt'),
+            passwordForm: $('#password-form'),
+            passwordTitle: $('#password-title'),
+            passwordSubtitle: $('#password-subtitle'),
+            passwordInput: $('#password-input'),
+            passwordError: $('#password-error'),
+            passwordSubmitButton: $('#password-submit-button'),
+            confirmPasswordContainer: $('#confirm-password-container'),
+            confirmPasswordInput: $('#confirm-password-input'),
+            appContainer: $('#app-container'),
+            sidebar: $('#sidebar'),
+            sidebarOpenBtn: $('#sidebar-open-button'),
+            sidebarCloseBtn: $('#sidebar-close-button'),
+            editorSidebarBtn: $('#editor-sidebar-button'),
+            notesList: $('#notes-list'),
+            noNotesMessage: $('#no-notes-message'),
+            newNoteButton: $('#new-note-button'),
+            searchInput: $('#search-input'),
+            editorContainer: $('#editor-container'),
+            welcomeScreen: $('#welcome-screen'),
+            noteEditor: $('#note-editor'),
+            noteTitleInput: $('#note-title-input'),
+            noteContentInput: $('#note-content-input'),
+            editorButtons: $('#editor-buttons'),
+            colorPalette: $('#color-palette'),
+            settings: {
+                modal: $('#settings-modal'),
+                openBtn: $('#settings-button'),
+                closeBtn: $('#settings-close-button'),
+                exportBtn: $('#export-button'),
+                exportArea: $('#export-data-area'),
+                importBtn: $('#import-button'),
+                importArea: $('#import-data-area'),
+            },
+            confirm: {
+                modal: $('#confirm-modal'),
+                title: $('#confirm-title'),
+                message: $('#confirm-message'),
+                okBtn: $('#confirm-ok-button'),
+                cancelBtn: $('#confirm-cancel-button'),
             }
+        };
 
-            async init() {
-                await this.checkFirstTimeSetup();
-                this.bindEvents();
-                this.registerServiceWorker();
-                this.checkBiometricSupport();
-                this.resetSessionTimeout();
-            }
+        // --- CRYPTOGRAPHY & DB ---
+        const DB_NAME = 'NoteSphereLocalDB', DB_VERSION = 1, NOTE_STORE = 'notes', META_STORE = 'metadata';
+        let db;
 
-            async checkFirstTimeSetup() {
-                // Clear any existing data to force fresh setup
-                localStorage.removeItem('vaultNotes_hasPassword');
-                localStorage.removeItem('vaultNotes_salt');
-                localStorage.removeItem('vaultNotes_passwordHash');
-                localStorage.removeItem('vaultNotes_data');
-                localStorage.removeItem('vaultNotes_backup');
-                localStorage.removeItem('vaultNotes_backupDate');
-                
-                // Always show setup for first-time experience
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('setupSection').classList.remove('hidden');
-            }
-
-            async checkBiometricSupport() {
-                if (window.PublicKeyCredential && 
-                    await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()) {
-                    document.getElementById('biometricBtn').classList.remove('hidden');
-                }
-            }
-
-            // PBKDF2 key derivation
-            async deriveKey(password, salt) {
-                const encoder = new TextEncoder();
-                const keyMaterial = await crypto.subtle.importKey(
-                    'raw',
-                    encoder.encode(password),
-                    { name: 'PBKDF2' },
-                    false,
-                    ['deriveBits', 'deriveKey']
-                );
-
-                return crypto.subtle.deriveKey(
-                    {
-                        name: 'PBKDF2',
-                        salt: salt,
-                        iterations: 100000,
-                        hash: 'SHA-256'
-                    },
-                    keyMaterial,
-                    { name: 'AES-GCM', length: 256 },
-                    false,
-                    ['encrypt', 'decrypt']
-                );
-            }
-
-            generateSalt() {
-                return crypto.getRandomValues(new Uint8Array(16));
-            }
-
-            async encrypt(text, key) {
-                const encoder = new TextEncoder();
-                const data = encoder.encode(text);
-                const iv = crypto.getRandomValues(new Uint8Array(12));
-
-                const encrypted = await crypto.subtle.encrypt(
-                    { name: 'AES-GCM', iv: iv },
-                    key,
-                    data
-                );
-
-                const combined = new Uint8Array(iv.length + encrypted.byteLength);
-                combined.set(iv);
-                combined.set(new Uint8Array(encrypted), iv.length);
-
-                return Array.from(combined).map(b => b.toString(16).padStart(2, '0')).join('');
-            }
-
-            async decrypt(encryptedHex, key) {
+        const dbRequest = indexedDB.open(DB_NAME, DB_VERSION);
+        dbRequest.onerror = () => handleError("Failed to open the database. Please ensure your browser supports IndexedDB and is not in private mode.");
+        dbRequest.onupgradeneeded = e => {
+            const dbInstance = e.target.result;
+            if (!dbInstance.objectStoreNames.contains(NOTE_STORE)) dbInstance.createObjectStore(NOTE_STORE, { keyPath: 'id' });
+            if (!dbInstance.objectStoreNames.contains(META_STORE)) dbInstance.createObjectStore(META_STORE, { keyPath: 'key' });
+        };
+        dbRequest.onsuccess = e => {
+            db = e.target.result;
+            initializeApp();
+        };
+        
+        const cryptoUtils = {
+            async getKey(password, salt) {
+                const enc = new TextEncoder();
+                const keyMaterial = await window.crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
+                return window.crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+            },
+            async encrypt(key, data) {
+                const enc = new TextEncoder();
+                const iv = window.crypto.getRandomValues(new Uint8Array(12));
+                const encryptedContent = await window.crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(data));
+                const encryptedArr = new Uint8Array([...iv, ...new Uint8Array(encryptedContent)]);
+                return window.btoa(String.fromCharCode.apply(null, encryptedArr));
+            },
+            async decrypt(key, encryptedBase64) {
                 try {
-                    const encrypted = new Uint8Array(encryptedHex.match(/.{2}/g).map(byte => parseInt(byte, 16)));
-                    const iv = encrypted.slice(0, 12);
-                    const data = encrypted.slice(12);
-
-                    const decrypted = await crypto.subtle.decrypt(
-                        { name: 'AES-GCM', iv: iv },
-                        key,
-                        data
-                    );
-
-                    const decoder = new TextDecoder();
-                    return decoder.decode(decrypted);
-                } catch (e) {
-                    console.error('Export failed:', e);
-                    this.showToast('❌ Export failed! Please try again.', 'error');
-                }
+                    const encryptedBytes = Uint8Array.from(window.atob(encryptedBase64), c => c.charCodeAt(0));
+                    const iv = encryptedBytes.slice(0, 12);
+                    const data = encryptedBytes.slice(12);
+                    const decryptedContent = await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
+                    return new TextDecoder().decode(decryptedContent);
+                } catch (e) { return null; }
             }
+        };
 
-            async importVault(e) {
-                if (this.isLocked) return;
-                
-                const files = Array.from(e.target.files);
-                if (files.length === 0) return;
-                
-                for (const file of files) {
-                    await this.processImportFile(file);
-                }
-                
-                e.target.value = '';
-            }
+        const dbUtils = {
+            get: (storeName, key) => new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readonly').objectStore(storeName).get(key);
+                tx.onsuccess = () => resolve(tx.result);
+                tx.onerror = () => reject(tx.error);
+            }),
+            getAll: (storeName) => new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readonly').objectStore(storeName).getAll();
+                tx.onsuccess = () => resolve(tx.result);
+                tx.onerror = () => reject(tx.error);
+            }),
+            set: (storeName, value) => new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readwrite').objectStore(storeName).put(value);
+                tx.onsuccess = () => resolve(tx.result);
+                tx.onerror = () => reject(tx.error);
+            }),
+            delete: (storeName, key) => new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readwrite').objectStore(storeName).delete(key);
+                tx.onsuccess = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            }),
+            clear: (storeName) => new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readwrite').objectStore(storeName).clear();
+                tx.onsuccess = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            })
+        };
 
-            async processImportFile(file) {
-                const reader = new FileReader();
-                reader.onload = async (event) => {
-                    try {
-                        let importData;
-                        const fileContent = event.target.result;
-                        
-                        // Try to parse as JSON first
-                        try {
-                            importData = JSON.parse(fileContent);
-                        } catch {
-                            // If JSON parsing fails, try to decrypt as encrypted vault
-                            if (this.masterKey) {
-                                try {
-                                    const decryptedContent = await this.decrypt(fileContent, this.masterKey);
-                                    importData = JSON.parse(decryptedContent);
-                                } catch {
-                                    throw new Error('Unable to decrypt or parse file content');
-                                }
-                            } else {
-                                throw new Error('File appears encrypted but no master key available');
-                            }
-                        }
-                        
-                        // Validate import data structure
-                        if (!importData.notes || !Array.isArray(importData.notes)) {
-                            throw new Error('Invalid vault format - missing notes array');
-                        }
-                        
-                        const confirmMessage = `Import ${importData.notes.length} notes from ${file.name}?\n\nThis will merge with existing notes.`;
-                        if (!confirm(confirmMessage)) return;
-                        
-                        // Merge imported notes with existing ones
-                        const existingIds = new Set(this.notes.map(n => n.id));
-                        const newNotes = importData.notes.filter(note => 
-                            note && note.id && !existingIds.has(note.id)
-                        );
-                        
-                        // Validate note structure
-                        const validNotes = newNotes.filter(note => 
-                            note.title && note.content && note.createdAt
-                        );
-                        
-                        if (validNotes.length > 0) {
-                            this.notes = [...validNotes, ...this.notes];
-                            await this.saveNotesToStorage();
-                            this.updateStats();
-                            this.renderNotes();
-                            
-                            this.showToast(`✅ Successfully imported ${validNotes.length} notes from ${file.name}!`);
-                        } else {
-                            this.showToast(`⚠️ No valid notes found in ${file.name}`, 'warning');
-                        }
-                        
-                        this.resetSessionTimeout();
-                    } catch (e) {
-                        console.error('Import failed:', e);
-                        this.showToast(`❌ Failed to import ${file.name}: ${e.message}`, 'error');
-                    }
-                };
-                reader.readAsText(file);
-            }
-
-            async clearAllNotes() {
-                if (this.isLocked) return;
-                
-                const confirmMessage = `⚠️ DANGER ZONE ⚠️\n\nThis will permanently delete all ${this.notes.length} encrypted notes from your vault.\n\nThis action cannot be undone!\n\nType "DELETE ALL" to confirm:`;
-                const userInput = prompt(confirmMessage);
-                
-                if (userInput === 'DELETE ALL') {
-                    this.notes = [];
-                    await this.saveNotesToStorage();
-                    this.updateStats();
-                    this.renderNotes();
-                    this.showToast('🗑️ All notes have been permanently deleted from your vault.');
-                    this.resetSessionTimeout();
-                } else if (userInput !== null) {
-                    this.showToast('❌ Deletion cancelled - incorrect confirmation text.', 'warning');
-                }
-            }
-
-            downloadFile(content, filename, mimeType) {
-                const blob = new Blob([content], { type: mimeType });
-                const url = URL.createObjectURL(blob);
-                
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
-            }
-
-            showToast(message, type = 'success') {
-                const toast = document.getElementById('toast');
-                toast.innerHTML = `
-                    <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️'}</span>
-                    <span>${message}</span>
-                `;
-                toast.className = `toast ${type === 'error' ? 'toast-error' : type === 'warning' ? 'toast-warning' : ''} show`;
-                
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 4000);
-            }
-
-            escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            async registerServiceWorker() {
-                if ('serviceWorker' in navigator) {
-                    try {
-                        const swCode = `
-                            const CACHE_NAME = 'vaultnotes-v2-1';
-                            const urlsToCache = [];
-
-                            self.addEventListener('install', function(event) {
-                                event.waitUntil(
-                                    caches.open(CACHE_NAME)
-                                        .then(function(cache) {
-                                            return cache.addAll(urlsToCache);
-                                        })
-                                );
-                            });
-
-                            self.addEventListener('fetch', function(event) {
-                                event.respondWith(
-                                    caches.match(event.request)
-                                        .then(function(response) {
-                                            if (response) {
-                                                return response;
-                                            }
-                                            return fetch(event.request);
-                                        }
-                                    )
-                                );
-                            });
-                        `;
-                        
-                        const blob = new Blob([swCode], { type: 'application/javascript' });
-                        const swUrl = URL.createObjectURL(blob);
-                        
-                        await navigator.serviceWorker.register(swUrl);
-                        console.log('VaultNotes ServiceWorker registered successfully');
-                        
-                        URL.revokeObjectURL(swUrl);
-                    } catch (error) {
-                        console.log('ServiceWorker registration failed: ', error);
-                    }
-                }
+        // --- APP LOGIC & RENDERING ---
+        
+        function handleError(message, isFatal = false) {
+            console.error(message);
+            if (isFatal) {
+                dom.loaderMessage.textContent = `Error: ${message}`;
+                dom.loaderMessage.classList.add('text-red-400');
+            } else {
+                // Show a non-fatal error, maybe in a toast later
+                alert(`Error: ${message}`); 
             }
         }
 
-        // Initialize the app
-        const app = new VaultNotesApp();
+        async function initializeApp() {
+            try {
+                if(!window.crypto || !window.crypto.subtle){
+                     handleError("Web Crypto API not available. Please use a modern, secure browser.", true);
+                     return;
+                }
+                const saltData = await dbUtils.get(META_STORE, 'encryptionSalt');
+                dom.loader.classList.add('hidden');
+                dom.passwordPrompt.classList.remove('hidden');
+                dom.passwordPrompt.classList.add('flex');
+                if (!saltData) setupNewUser(); else setupExistingUser();
+            } catch (e) {
+                handleError(`Initialization failed: ${e.message}`, true);
+            }
+        }
 
-        // PWA Install functionality
-        let deferredPrompt;
+        function setupNewUser() {
+            dom.passwordTitle.textContent = 'Set Your Master Password';
+            dom.passwordSubtitle.textContent = 'This password encrypts all your notes and cannot be recovered if forgotten.';
+            dom.confirmPasswordContainer.classList.remove('hidden');
+            dom.confirmPasswordInput.required = true;
+            dom.passwordSubmitButton.textContent = 'Set Password & Start';
+        }
+
+        function setupExistingUser() {
+            dom.passwordTitle.textContent = 'Unlock Your Notes';
+            dom.passwordSubtitle.textContent = 'Enter your password to decrypt and access your notes.';
+            dom.confirmPasswordContainer.classList.add('hidden');
+            dom.confirmPasswordInput.required = false;
+            dom.passwordSubmitButton.textContent = 'Unlock';
+        }
         
-        window.addEventListener('beforeinstallprompt', (e) => {
+        async function login(password) {
+            const saltData = await dbUtils.get(META_STORE, 'encryptionSalt');
+            if(!saltData) throw new Error("Salt not found.");
+            const key = await cryptoUtils.getKey(password, saltData.value);
+            const decryptedNotes = await loadAndDecryptNotes(key);
+            if (decryptedNotes === null) return false;
+            
+            state.encryptionKey = key;
+            state.notes = decryptedNotes;
+            dom.passwordPrompt.classList.add('hidden');
+            dom.appContainer.classList.remove('hidden');
+            renderNotesList();
+            renderEditor();
+            return true;
+        }
+
+        async function loadAndDecryptNotes(key) {
+             try {
+                const encryptedNotes = await dbUtils.getAll(NOTE_STORE);
+                const decryptedNotes = await Promise.all(
+                    encryptedNotes.map(async (note) => {
+                        const decryptedContent = await cryptoUtils.decrypt(key, note.encryptedContent);
+                        if (decryptedContent === null) throw new Error("Decryption failed for at least one note. The password may be incorrect.");
+                        
+                        const contentData = JSON.parse(decryptedContent);
+                        return { id: note.id, updatedAt: note.updatedAt, ...contentData };
+                    })
+                );
+                return decryptedNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            } catch (e) {
+                console.error(e.message);
+                return null;
+            }
+        }
+        
+        function renderNotesList() {
+            const searchTerm = dom.searchInput.value.toLowerCase();
+            const filteredNotes = state.notes.filter(note => 
+                (note.title && note.title.toLowerCase().includes(searchTerm)) || 
+                (note.content && note.content.toLowerCase().includes(searchTerm))
+            );
+
+            dom.notesList.innerHTML = '';
+            if (filteredNotes.length === 0) {
+                dom.noNotesMessage.classList.remove('hidden');
+            } else {
+                dom.noNotesMessage.classList.add('hidden');
+                filteredNotes.forEach(note => {
+                    const li = document.createElement('li');
+                    li.dataset.noteId = note.id;
+                    const isSelected = note.id === state.selectedNoteId;
+                    li.className = `cursor-pointer p-3 mb-2 rounded-lg transition-colors duration-200 ${isSelected ? 'bg-indigo-600/50' : 'hover:bg-gray-700/70'}`;
+                    li.innerHTML = `
+                        <div class="flex items-start space-x-3">
+                            <div class="w-2 h-10 rounded-full flex-shrink-0" style="background-color: ${note.color || '#4A5568'};"></div>
+                            <div class="flex-1 overflow-hidden">
+                                <h3 class="font-semibold text-slate-100 truncate">${note.title || 'Untitled Note'}</h3>
+                                <p class="text-sm text-slate-400 truncate">${note.content || 'No additional content'}</p>
+                            </div>
+                            <span class="text-xs text-slate-500 self-start flex-shrink-0">${new Date(note.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        </div>`;
+                    dom.notesList.appendChild(li);
+                });
+            }
+        }
+        
+        function renderEditor() {
+            const note = state.notes.find(n => n.id === state.selectedNoteId);
+            
+            if (state.isCreating || note) {
+                dom.welcomeScreen.classList.add('hidden');
+                dom.noteEditor.classList.remove('hidden');
+                dom.noteEditor.classList.add('flex');
+
+                const currentTitle = state.isCreating ? '' : (note?.title || '');
+                const currentContent = state.isCreating ? '' : (note?.content || '');
+                const currentColor = state.isCreating ? '#4A5568' : (note?.color || '#4A5568');
+                
+                dom.noteTitleInput.value = currentTitle;
+                dom.noteContentInput.value = currentContent;
+                
+                renderEditorButtons();
+                renderColorPalette(currentColor);
+                updateEditorState(state.isEditing || state.isCreating);
+
+            } else {
+                dom.welcomeScreen.classList.remove('hidden');
+                dom.welcomeScreen.classList.add('flex');
+                dom.noteEditor.classList.add('hidden');
+                state.isEditing = false;
+                state.isCreating = false;
+            }
+        }
+
+        function updateEditorState(isEditable) {
+            dom.noteTitleInput.disabled = !isEditable;
+            dom.noteContentInput.disabled = !isEditable;
+            dom.colorPalette.classList.toggle('hidden', !isEditable);
+            dom.colorPalette.classList.toggle('flex', isEditable);
+        }
+        
+        function renderEditorButtons() {
+            dom.editorButtons.innerHTML = '';
+            if(state.isEditing || state.isCreating) {
+                dom.editorButtons.innerHTML = `
+                    <button id="save-note-button" class="flex items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-lg transition">Save</button>
+                    ${!state.isCreating ? `<button id="cancel-edit-button" class="flex items-center bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition">Cancel</button>` : ''}`;
+            } else {
+                dom.editorButtons.innerHTML = `
+                    <button id="edit-note-button" class="flex items-center bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition">Edit</button>
+                    <button id="delete-note-button" class="flex items-center bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition">Delete</button>`;
+            }
+        }
+
+        function renderColorPalette(selectedColor) {
+            const colors = ['#4A5568', '#A0AEC0', '#F56565', '#ED8936', '#ECC94B', '#48BB78', '#38B2AC', '#4299E1', '#667EEA', '#9F7AEA', '#ED64A6'];
+            dom.colorPalette.innerHTML = '';
+            colors.forEach(color => {
+                const button = document.createElement('button');
+                button.dataset.color = color;
+                button.className = `w-6 h-6 rounded-full transition transform hover:scale-110 ${color.toLowerCase() === selectedColor.toLowerCase() ? 'ring-2 ring-offset-2 ring-offset-gray-800 ring-white' : ''}`;
+                button.style.backgroundColor = color;
+                dom.colorPalette.appendChild(button);
+            });
+        }
+        
+        async function saveNote() {
+            const noteId = state.isCreating ? crypto.randomUUID() : state.selectedNoteId;
+            const noteData = {
+                title: dom.noteTitleInput.value,
+                content: dom.noteContentInput.value,
+                color: dom.colorPalette.querySelector('.ring-2')?.dataset.color || '#4A5568'
+            };
+
+            const encryptedContent = await cryptoUtils.encrypt(state.encryptionKey, JSON.stringify(noteData));
+            const dbRecord = { id: noteId, updatedAt: new Date().toISOString(), encryptedContent };
+            await dbUtils.set(NOTE_STORE, dbRecord);
+
+            const newNotes = await loadAndDecryptNotes(state.encryptionKey);
+            state.notes = newNotes;
+            state.selectedNoteId = noteId;
+            state.isEditing = false;
+            state.isCreating = false;
+
+            renderNotesList();
+            renderEditor();
+        }
+        
+        async function deleteNote(noteId) {
+            await dbUtils.delete(NOTE_STORE, noteId);
+            state.selectedNoteId = null;
+            state.notes = state.notes.filter(n => n.id !== noteId);
+            renderNotesList();
+            renderEditor();
+        }
+        
+        function showConfirmDialog(title, message, onConfirm) {
+            dom.confirm.title.textContent = title;
+            dom.confirm.message.textContent = message;
+            dom.confirm.modal.classList.remove('hidden');
+
+            const handleConfirm = () => {
+                onConfirm();
+                cleanup();
+            };
+            const cleanup = () => {
+                dom.confirm.okBtn.removeEventListener('click', handleConfirm);
+                dom.confirm.cancelBtn.removeEventListener('click', cleanup);
+                dom.confirm.modal.classList.add('hidden');
+            };
+            
+            dom.confirm.okBtn.addEventListener('click', handleConfirm, { once: true });
+            dom.confirm.cancelBtn.addEventListener('click', cleanup, { once: true });
+        }
+
+        // --- EVENT LISTENERS ---
+        dom.passwordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            deferredPrompt = e;
-            showInstallPrompt();
+            dom.passwordError.textContent = '';
+            dom.passwordSubmitButton.disabled = true;
+            
+            const password = dom.passwordInput.value;
+            const isNewUser = dom.confirmPasswordInput.required;
+            
+            if (isNewUser) {
+                const confirmPassword = dom.confirmPasswordInput.value;
+                if (password.length < 8) {
+                    dom.passwordError.textContent = "Password must be at least 8 characters.";
+                } else if (password !== confirmPassword) {
+                    dom.passwordError.textContent = "Passwords do not match.";
+                } else {
+                    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+                    await dbUtils.set(META_STORE, { key: 'encryptionSalt', value: salt });
+                    await login(password);
+                }
+            } else {
+                const success = await login(password);
+                if (!success) dom.passwordError.textContent = "Incorrect password or corrupted data.";
+            }
+            dom.passwordSubmitButton.disabled = false;
         });
 
-        function showInstallPrompt() {
-            if (document.getElementById('installPrompt')) return;
-            
-            const installPrompt = document.createElement('div');
-            installPrompt.id = 'installPrompt';
-            installPrompt.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, var(--accent), #059669);
-                color: white;
-                padding: 16px 20px;
-                border-radius: 16px;
-                box-shadow: var(--shadow);
-                z-index: 9998;
-                animation: slideInRight 0.5s ease-out;
-                max-width: 320px;
-            `;
-            installPrompt.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <span style="font-size: 1.5rem;">📱</span>
-                    <strong>Install VaultNotes</strong>
-                </div>
-                <p style="margin-bottom: 16px; font-size: 0.9rem; opacity: 0.9;">
-                    Install as an app for the ultimate secure note-taking experience
-                </p>
-                <div style="display: flex; gap: 12px;">
-                    <button onclick="installApp()" style="background: rgba(255,255,255,0.2); border: none; 
-                            padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer; font-weight: 600;">
-                        Install
-                    </button>
-                    <button onclick="dismissInstall()" style="background: transparent; border: 1px solid rgba(255,255,255,0.3); 
-                            padding: 8px 16px; border-radius: 8px; color: white; cursor: pointer;">
-                        Later
-                    </button>
-                </div>
-            `;
-            
-            document.body.appendChild(installPrompt);
-        }
-
-        window.installApp = async function() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    app.showToast('🎉 VaultNotes installed successfully!');
-                }
-                deferredPrompt = null;
-                dismissInstall();
+        dom.newNoteButton.addEventListener('click', () => {
+            state.selectedNoteId = null;
+            state.isCreating = true;
+            state.isEditing = true;
+            renderEditor();
+            if(window.innerWidth < 768) dom.sidebar.classList.remove('w-80');
+        });
+        
+        dom.notesList.addEventListener('click', (e) => {
+            const li = e.target.closest('li');
+            if (li) {
+                state.selectedNoteId = li.dataset.noteId;
+                state.isEditing = false;
+                state.isCreating = false;
+                renderNotesList(); // to update selection style
+                renderEditor();
+                if(window.innerWidth < 768) dom.sidebar.classList.remove('w-80');
             }
-        };
+        });
+        
+        dom.searchInput.addEventListener('input', renderNotesList);
 
-        window.dismissInstall = function() {
-            const installPrompt = document.getElementById('installPrompt');
-            if (installPrompt) {
-                installPrompt.remove();
+        dom.editorContainer.addEventListener('click', (e) => {
+            if (e.target.id === 'edit-note-button') {
+                state.isEditing = true;
+                renderEditor();
             }
-        };
-
-        // Add slide in animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideInRight {
-                from {
-                    opacity: 0;
-                    transform: translateX(100px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateX(0);
-                }
+            if (e.target.id === 'save-note-button') {
+                saveNote();
             }
-        `;
-        document.head.appendChild(style);
+             if (e.target.id === 'cancel-edit-button') {
+                state.isEditing = false;
+                renderEditor();
+            }
+            if (e.target.id === 'delete-note-button') {
+                showConfirmDialog('Delete Note?', 'This note will be permanently deleted.', () => deleteNote(state.selectedNoteId));
+            }
+            if(e.target.closest('#color-palette button')) {
+                 const color = e.target.closest('button').dataset.color;
+                 renderColorPalette(color);
+            }
+        });
+        
+        // Sidebar toggle
+        const toggleSidebar = () => dom.sidebar.classList.toggle('w-80');
+        [dom.sidebarOpenBtn, dom.sidebarCloseBtn, dom.editorSidebarBtn].forEach(btn => btn.addEventListener('click', toggleSidebar));
+        
+        // Settings Modal
+        dom.settings.openBtn.addEventListener('click', () => dom.settings.modal.classList.remove('hidden'));
+        dom.settings.closeBtn.addEventListener('click', () => dom.settings.modal.classList.add('hidden'));
+        
+        dom.settings.exportBtn.addEventListener('click', async () => {
+            const saltData = await dbUtils.get(META_STORE, 'encryptionSalt');
+            const notes = await dbUtils.getAll(NOTE_STORE);
+            const exportData = { salt: Array.from(saltData.value), notes };
+            dom.settings.exportArea.value = JSON.stringify(exportData);
+            dom.settings.exportArea.classList.remove('hidden');
+            dom.settings.exportArea.select();
+            alert("Backup text generated in the text box. Please copy and save it to a secure file.");
+        });
 
-        console.log('🔐 VaultNotes - Ultra-Secure PWA loaded successfully!');
-        console.log('🛡️ Security Features: AES-256 encryption, PBKDF2 key derivation, Auto-lock protection');
-    </script>
+        dom.settings.importBtn.addEventListener('click', () => {
+            const importData = dom.settings.importArea.value;
+            if (!importData) {
+                alert("Please paste your backup data into the text box.");
+                return;
+            }
+            showConfirmDialog('Import and Overwrite?', 'This will replace all current notes. This action cannot be undone.', async () => {
+                try {
+                    const data = JSON.parse(importData);
+                    if (!data.salt || !data.notes) throw new Error("Invalid backup file format.");
+                    
+                    await dbUtils.clear(NOTE_STORE);
+                    await dbUtils.clear(META_STORE);
+                    await dbUtils.set(META_STORE, { key: 'encryptionSalt', value: new Uint8Array(data.salt) });
+                    for (const note of data.notes) {
+                        await dbUtils.set(NOTE_STORE, note);
+                    }
+                    alert("Import successful! The app will now reload. Please enter your original password to decrypt the imported data.");
+                    window.location.reload();
+                } catch (err) {
+                    alert(`Import failed: ${err.message}`);
+                }
+            });
+        });
+    });
+</script>
 </body>
-</html>) {
-                    throw new Error('Decryption failed - invalid password or corrupted data');
-                }
-            }
+</html>
 
-            async setupMasterPassword() {
-                const password = document.getElementById('newPassword').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-
-                if (!password || password.length < 8) {
-                    this.showToast('Password must be at least 8 characters long!', 'error');
-                    return;
-                }
-
-                if (password !== confirmPassword) {
-                    this.showToast('Passwords do not match!', 'error');
-                    return;
-                }
-
-                try {
-                    const salt = this.generateSalt();
-                    this.masterKey = await this.deriveKey(password, salt);
-
-                    const passwordHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
-                    localStorage.setItem('vaultNotes_salt', Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join(''));
-                    localStorage.setItem('vaultNotes_passwordHash', Array.from(new Uint8Array(passwordHash)).map(b => b.toString(16).padStart(2, '0')).join(''));
-                    localStorage.setItem('vaultNotes_hasPassword', 'true');
-
-                    this.unlockVault();
-                    this.showToast('🛡️ Vault secured! Your notes are now protected with AES-256 encryption.');
-                } catch (e) {
-                    this.showToast('Failed to setup encryption. Please try again.', 'error');
-                }
-            }
-
-            async authenticateWithPassword() {
-                const password = document.getElementById('masterPassword').value;
-                if (!password) {
-                    this.showToast('Please enter your password!', 'error');
-                    return;
-                }
-
-                try {
-                    const saltHex = localStorage.getItem('vaultNotes_salt');
-                    const storedHashHex = localStorage.getItem('vaultNotes_passwordHash');
-                    
-                    if (!saltHex || !storedHashHex) {
-                        throw new Error('Security data corrupted');
-                    }
-
-                    const enteredHash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(password));
-                    const enteredHashHex = Array.from(new Uint8Array(enteredHash)).map(b => b.toString(16).padStart(2, '0')).join('');
-                    
-                    if (enteredHashHex !== storedHashHex) {
-                        this.showToast('🔒 Invalid password! Access denied.', 'error');
-                        document.getElementById('masterPassword').value = '';
-                        return;
-                    }
-
-                    const salt = new Uint8Array(saltHex.match(/.{2}/g).map(byte => parseInt(byte, 16)));
-                    this.masterKey = await this.deriveKey(password, salt);
-
-                    this.unlockVault();
-                } catch (e) {
-                    this.showToast('🚨 Authentication failed! ' + e.message, 'error');
-                }
-            }
-
-            async authenticateWithBiometrics() {
-                try {
-                    const credential = await navigator.credentials.create({
-                        publicKey: {
-                            challenge: crypto.getRandomValues(new Uint8Array(32)),
-                            rp: { name: "VaultNotes" },
-                            user: {
-                                id: new TextEncoder().encode("vaultuser"),
-                                name: "vault@user.local",
-                                displayName: "Vault User"
-                            },
-                            pubKeyCredParams: [{ alg: -7, type: "public-key" }],
-                            authenticatorSelection: {
-                                userVerification: "required"
-                            }
-                        }
-                    });
-
-                    if (credential) {
-                        this.showToast('🎉 Biometric authentication successful!');
-                        this.unlockVault();
-                    }
-                } catch (e) {
-                    this.showToast('Biometric authentication failed. Please use password.', 'warning');
-                }
-            }
-
-            unlockVault() {
-                this.isLocked = false;
-                document.getElementById('lockScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                
-                this.loadNotes();
-                this.updateStats();
-                this.renderNotes();
-                this.resetSessionTimeout();
-                
-                this.showToast('🔓 Vault unlocked! Welcome back to your secure notes.');
-            }
-
-            lockVault() {
-                this.isLocked = true;
-                this.masterKey = null;
-                this.notes = [];
-                
-                document.getElementById('lockScreen').style.display = 'flex';
-                document.getElementById('mainApp').style.display = 'none';
-                document.getElementById('masterPassword').value = '';
-                
-                if (this.timeoutId) {
-                    clearTimeout(this.timeoutId);
-                }
-                
-                this.showToast('🔒 Vault locked for security.');
-            }
-
-            resetSessionTimeout() {
-                if (this.timeoutId) {
-                    clearTimeout(this.timeoutId);
-                }
-                
-                this.timeoutId = setTimeout(() => {
-                    if (!this.isLocked) {
-                        this.lockVault();
-                        this.showToast('🔒 Vault auto-locked due to inactivity.', 'warning');
-                    }
-                }, this.sessionTimeout);
-            }
-
-            bindEvents() {
-                // Authentication events
-                document.getElementById('setupBtn').addEventListener('click', () => this.setupMasterPassword());
-                document.getElementById('unlockBtn').addEventListener('click', () => this.authenticateWithPassword());
-                document.getElementById('biometricBtn').addEventListener('click', () => this.authenticateWithBiometrics());
-                document.getElementById('lockVaultBtn').addEventListener('click', () => this.lockVault());
-
-                // Enter key for passwords
-                document.getElementById('masterPassword').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.authenticateWithPassword();
-                });
-                document.getElementById('confirmPassword').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.setupMasterPassword();
-                });
-
-                // App events
-                document.getElementById('newNoteBtn').addEventListener('click', () => this.openNoteModal());
-                document.getElementById('closeModal').addEventListener('click', () => this.closeNoteModal());
-                document.getElementById('cancelBtn').addEventListener('click', () => this.closeNoteModal());
-                document.getElementById('noteForm').addEventListener('submit', (e) => this.saveNote(e));
-
-                // Search and filter
-                document.getElementById('searchInput').addEventListener('input', (e) => {
-                    this.searchNotes(e.target.value);
-                    this.resetSessionTimeout();
-                });
-                document.getElementById('sortSelect').addEventListener('change', (e) => {
-                    this.sortNotes(e.target.value);
-                    this.resetSessionTimeout();
-                });
-
-                // Data management
-                document.getElementById('exportBtn').addEventListener('click', () => this.exportVault());
-                document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
-                document.getElementById('importFile').addEventListener('change', (e) => this.importVault(e));
-                document.getElementById('clearAllBtn').addEventListener('click', () => this.clearAllNotes());
-
-                // Activity tracking for auto-lock
-                ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-                    document.addEventListener(event, () => {
-                        if (!this.isLocked) {
-                            this.resetSessionTimeout();
-                        }
-                    }, { passive: true });
-                });
-
-                // Close modal on outside click
-                window.addEventListener('click', (e) => {
-                    if (e.target === document.getElementById('noteModal')) {
-                        this.closeNoteModal();
-                    }
-                });
-
-                // Keyboard shortcuts
-                document.addEventListener('keydown', (e) => {
-                    if (!this.isLocked) {
-                        if (e.ctrlKey && e.key === 'n') {
-                            e.preventDefault();
-                            this.openNoteModal();
-                        }
-                        if (e.key === 'Escape') {
-                            this.closeNoteModal();
-                        }
-                        if (e.ctrlKey && e.key === 'l') {
-                            e.preventDefault();
-                            this.lockVault();
-                        }
-                    }
-                });
-            }
-
-            async loadNotes() {
-                if (!this.masterKey) return;
-                
-                const encryptedData = localStorage.getItem('vaultNotes_data');
-                if (encryptedData) {
-                    try {
-                        const decryptedData = await this.decrypt(encryptedData, this.masterKey);
-                        this.notes = JSON.parse(decryptedData) || [];
-                    } catch (e) {
-                        console.error('Failed to decrypt notes:', e);
-                        this.showToast('🚨 Failed to decrypt notes! Password may be incorrect.', 'error');
-                        this.notes = [];
-                    }
-                }
-            }
-
-            async saveNotesToStorage() {
-                if (!this.masterKey) return;
-                
-                try {
-                    const dataString = JSON.stringify(this.notes);
-                    const encryptedData = await this.encrypt(dataString, this.masterKey);
-                    localStorage.setItem('vaultNotes_data', encryptedData);
-                    
-                    // Create backup
-                    localStorage.setItem('vaultNotes_backup', encryptedData);
-                    localStorage.setItem('vaultNotes_backupDate', new Date().toISOString());
-                } catch (e) {
-                    console.error('Failed to save notes:', e);
-                    this.showToast('🚨 Failed to save notes! Please try again.', 'error');
-                }
-            }
-
-            openNoteModal(noteId = null) {
-                if (this.isLocked) return;
-                
-                this.currentNoteId = noteId;
-                const modal = document.getElementById('noteModal');
-                const modalTitle = document.getElementById('modalTitle');
-                const noteTitle = document.getElementById('noteTitle');
-                const noteContent = document.getElementById('noteContent');
-                const noteTags = document.getElementById('noteTags');
-
-                if (noteId) {
-                    const note = this.notes.find(n => n.id === noteId);
-                    if (note) {
-                        modalTitle.textContent = 'Edit Secure Note';
-                        noteTitle.value = note.title;
-                        noteContent.value = note.content;
-                        noteTags.value = note.tags.join(', ');
-                    }
-                } else {
-                    modalTitle.textContent = 'New Secure Note';
-                    noteTitle.value = '';
-                    noteContent.value = '';
-                    noteTags.value = '';
-                }
-
-                modal.style.display = 'block';
-                noteTitle.focus();
-                this.resetSessionTimeout();
-            }
-
-            closeNoteModal() {
-                document.getElementById('noteModal').style.display = 'none';
-                this.currentNoteId = null;
-            }
-
-            async saveNote(e) {
-                e.preventDefault();
-                
-                if (this.isLocked || !this.masterKey) return;
-                
-                const title = document.getElementById('noteTitle').value.trim();
-                const content = document.getElementById('noteContent').value.trim();
-                const tagsInput = document.getElementById('noteTags').value.trim();
-                const tags = tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
-
-                if (!title || !content) {
-                    this.showToast('📝 Title and content are required!', 'error');
-                    return;
-                }
-
-                const now = new Date().toISOString();
-                
-                if (this.currentNoteId) {
-                    const noteIndex = this.notes.findIndex(n => n.id === this.currentNoteId);
-                    if (noteIndex !== -1) {
-                        this.notes[noteIndex] = {
-                            ...this.notes[noteIndex],
-                            title,
-                            content,
-                            tags,
-                            updatedAt: now
-                        };
-                        this.showToast('🔐 Note updated and encrypted successfully!');
-                    }
-                } else {
-                    const newNote = {
-                        id: Date.now().toString(),
-                        title,
-                        content,
-                        tags,
-                        createdAt: now,
-                        updatedAt: now
-                    };
-                    this.notes.unshift(newNote);
-                    this.showToast('🔐 Note created and encrypted successfully!');
-                }
-
-                await this.saveNotesToStorage();
-                this.updateStats();
-                this.renderNotes();
-                this.closeNoteModal();
-                this.resetSessionTimeout();
-            }
-
-            async deleteNote(noteId) {
-                if (this.isLocked) return;
-                
-                if (confirm('🗑️ Are you sure you want to permanently delete this encrypted note?')) {
-                    this.notes = this.notes.filter(n => n.id !== noteId);
-                    await this.saveNotesToStorage();
-                    this.updateStats();
-                    this.renderNotes();
-                    this.showToast('🗑️ Note securely deleted!');
-                    this.resetSessionTimeout();
-                }
-            }
-
-            async duplicateNote(noteId) {
-                if (this.isLocked) return;
-                
-                const note = this.notes.find(n => n.id === noteId);
-                if (note) {
-                    const now = new Date().toISOString();
-                    const duplicatedNote = {
-                        ...note,
-                        id: Date.now().toString(),
-                        title: note.title + ' (Copy)',
-                        createdAt: now,
-                        updatedAt: now
-                    };
-                    this.notes.unshift(duplicatedNote);
-                    await this.saveNotesToStorage();
-                    this.updateStats();
-                    this.renderNotes();
-                    this.showToast('📋 Note duplicated successfully!');
-                    this.resetSessionTimeout();
-                }
-            }
-
-            searchNotes(query) {
-                if (this.isLocked) return;
-                
-                const filteredNotes = this.notes.filter(note => {
-                    const searchText = (note.title + ' ' + note.content + ' ' + note.tags.join(' ')).toLowerCase();
-                    return searchText.includes(query.toLowerCase());
-                });
-                this.renderNotes(filteredNotes);
-            }
-
-            sortNotes(sortBy) {
-                if (this.isLocked) return;
-                
-                let sortedNotes = [...this.notes];
-                
-                switch (sortBy) {
-                    case 'dateDesc':
-                        sortedNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-                        break;
-                    case 'dateAsc':
-                        sortedNotes.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
-                        break;
-                    case 'titleAsc':
-                        sortedNotes.sort((a, b) => a.title.localeCompare(b.title));
-                        break;
-                    case 'titleDesc':
-                        sortedNotes.sort((a, b) => b.title.localeCompare(a.title));
-                        break;
-                }
-                
-                this.renderNotes(sortedNotes);
-            }
-
-            renderNotes(notesToRender = this.notes) {
-                if (this.isLocked) return;
-                
-                const notesGrid = document.getElementById('notesGrid');
-                const emptyState = document.getElementById('emptyState');
-                
-                if (notesToRender.length === 0) {
-                    notesGrid.innerHTML = '';
-                    emptyState.classList.remove('hidden');
-                } else {
-                    emptyState.classList.add('hidden');
-                    notesGrid.innerHTML = notesToRender.map(note => this.createNoteCard(note)).join('');
-                }
-            }
-
-            createNoteCard(note) {
-                const date = new Date(note.updatedAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-                const tagsHtml = note.tags.map(tag => 
-                    `<span class="tag">${this.escapeHtml(tag)}</span>`
-                ).join('');
-
-                return `
-                    <div class="note-card" onclick="app.openNoteModal('${note.id}')">
-                        <div class="note-header">
-                            <div>
-                                <div class="note-title">${this.escapeHtml(note.title)}</div>
-                                <div class="note-date">🔐 ${date}</div>
-                            </div>
-                            <div class="note-actions">
-                                <button class="note-action-btn duplicate" 
-                                        onclick="event.stopPropagation(); app.duplicateNote('${note.id}')"
-                                        title="Duplicate Note">
-                                    📋
-                                </button>
-                                <button class="note-action-btn delete" 
-                                        onclick="event.stopPropagation(); app.deleteNote('${note.id}')"
-                                        title="Delete Note">
-                                    🗑️
-                                </button>
-                            </div>
-                        </div>
-                        <div class="note-content">${this.escapeHtml(note.content.substring(0, 150))}${note.content.length > 150 ? '...' : ''}</div>
-                        ${note.tags.length > 0 ? `<div class="note-tags">${tagsHtml}</div>` : ''}
-                    </div>
-                `;
-            }
-
-            updateStats() {
-                if (this.isLocked) return;
-                
-                const totalNotes = this.notes.length;
-                const totalWords = this.notes.reduce((sum, note) => 
-                    sum + note.content.split(/\s+/).filter(word => word).length, 0);
-                const allTags = this.notes.flatMap(note => note.tags);
-                const totalTags = new Set(allTags).size;
-
-                document.getElementById('totalNotes').textContent = totalNotes;
-                document.getElementById('totalWords').textContent = totalWords.toLocaleString();
-                document.getElementById('totalTags').textContent = totalTags;
-            }
-
-            async exportVault() {
-                if (this.isLocked || !this.masterKey) return;
-                
-                try {
-                    const exportData = {
-                        notes: this.notes,
-                        exportDate: new Date().toISOString(),
-                        version: '2.1',
-                        appName: 'VaultNotes',
-                        encryption: 'AES-256-GCM'
-                    };
-                    
-                    const dataStr = JSON.stringify(exportData, null, 2);
-                    this.downloadFile(dataStr, `VaultNotes_Export_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
-                    
-                    this.showToast('🔐 Vault exported successfully! Keep this file secure.');
-                    this.resetSessionTimeout();
-                } catch (e)
