@@ -5,7 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NoteSphere - Complete & Secure Notes App</title>
     <meta name="description" content="A complete, secure, and offline-first notes app with local encrypted storage, autosave, Markdown support, and manual backups.">
+    
+    <!-- PWA Configuration -->
     <meta name="theme-color" content="#1a202c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NoteSphere">
+    <link id="manifest-link" rel="manifest">
+    <link id="apple-touch-icon-link" rel="apple-touch-icon">
+    <link id="favicon-link" rel="icon">
+
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -199,6 +208,54 @@
     };
 
     (function() {
+        // --- PWA SETUP ---
+        function setupPwa() {
+            const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="#a5b4fc"><path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" stroke-linecap="round" stroke-linejoin="round"/><rect x="8" y="13" width="8" height="1" fill="#a5b4fc" stroke="none" /><rect x="8" y="16" width="6" height="1" fill="#a5b4fc" stroke="none" /></svg>`;
+            const icon192Url = `data:image/svg+xml;base64,${btoa(iconSvg)}`;
+
+            const manifest = {
+                "name": "NoteSphere",
+                "short_name": "NoteSphere",
+                "description": "A complete, secure, and offline-first notes app.",
+                "start_url": ".",
+                "display": "standalone",
+                "background_color": "#111827",
+                "theme_color": "#1a202c",
+                "icons": [
+                    { "src": icon192Url, "sizes": "192x192", "type": "image/svg+xml" }
+                ]
+            };
+            const manifestJson = JSON.stringify(manifest);
+            const manifestUrl = `data:application/manifest+json;base64,${btoa(manifestJson)}`;
+            
+            document.querySelector('#manifest-link').setAttribute('href', manifestUrl);
+            document.querySelector('#apple-touch-icon-link').setAttribute('href', icon192Url);
+            document.querySelector('#favicon-link').setAttribute('href', icon192Url);
+
+            // Service Worker
+            const swCode = `
+                self.addEventListener('install', () => self.skipWaiting());
+                self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+                self.addEventListener('fetch', e => {
+                    if (e.request.url.startsWith('http')) {
+                         e.respondWith(
+                            fetch(e.request).catch(() => caches.match(e.request))
+                         );
+                    }
+                });
+            `;
+            const swBlob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(swBlob);
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register(swUrl).catch(error => {
+                    console.error('Service Worker registration failed:', error);
+                });
+            }
+        }
+        setupPwa();
+
+
         // --- STATE MANAGEMENT ---
         let state = { encryptionKey: null, notes: [], selectedNoteId: null, isCreating: false, isPreview: false };
         let autosaveTimeout;
