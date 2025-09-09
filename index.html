@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NoteSphere - Local & Secure Notes</title>
-    <meta name="description" content="A secure, private, and offline-first notes app with local encrypted storage.">
+    <title>NoteSphere - Complete & Secure Notes App</title>
+    <meta name="description" content="A complete, secure, and offline-first notes app with local encrypted storage, autosave, Markdown support, and manual backups.">
     <meta name="theme-color" content="#1a202c">
 
     <!-- Tailwind CSS -->
@@ -16,50 +16,46 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
+        html, body { height: 100%; overflow: hidden; }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* bg-gray-900 */
-            color: #e2e8f0; /* slate-200 */
+            background-color: #111827;
+            background-image: radial-gradient(circle at 1px 1px, #374151 1px, transparent 0);
+            background-size: 2rem 2rem;
+            color: #e2e8f0;
         }
-        /* Simple scrollbar styling */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #2d3748; }
-        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #718096; }
-        
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
         .glass-card {
-            background: rgba(45, 55, 72, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            background: rgba(31, 41, 55, 0.7);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .hidden { display: none; }
-        .modal {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-        }
-        .modal-content {
-            background-color: #2d3748; /* bg-gray-800 */
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            width: 100%;
-            max-width: 28rem; /* lg */
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-        }
+        .hidden { display: none !important; }
+        #error-overlay { position: fixed; top: 0; left: 0; right: 0; background-color: #7f1d1d; color: #fee2e2; padding: 1rem; z-index: 1000; font-family: monospace; font-size: 0.875rem; border-bottom: 2px solid #b91c1c; }
+        .modal { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 50; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+        .modal.visible { opacity: 1; pointer-events: auto; }
+        .modal-content { background-color: #1f2937; border-radius: 0.75rem; padding: 1.5rem; width: 100%; max-width: 28rem; box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal.visible .modal-content { transform: scale(1); }
+        .markdown-preview { color: #d1d5db; }
+        .markdown-preview h1, .markdown-preview h2, .markdown-preview h3 { font-weight: 700; border-bottom: 1px solid #4b5563; padding-bottom: 0.5em; margin-bottom: 1em; }
+        .markdown-preview h1 { font-size: 2em; } .markdown-preview h2 { font-size: 1.5em; } .markdown-preview h3 { font-size: 1.25em; }
+        .markdown-preview p { margin-bottom: 1em; line-height: 1.6; } .markdown-preview strong { color: #f9fafb; } .markdown-preview em { font-style: italic; color: #a5b4fc; }
+        .markdown-preview a { color: #818cf8; text-decoration: underline; } .markdown-preview ul, .markdown-preview ol { padding-left: 2em; margin-bottom: 1em; }
+        .markdown-preview li { margin-bottom: 0.5em; } .markdown-preview pre { background-color: #111827; padding: 1em; border-radius: 0.5em; overflow-x: auto; }
+        .markdown-preview code { font-family: monospace; background-color: #374151; padding: 0.2em 0.4em; border-radius: 0.25em; }
+        .markdown-preview blockquote { border-left: 4px solid #4b5563; padding-left: 1em; margin-left: 0; color: #9ca3af; }
+        #toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 100; display: flex; flex-direction: column; gap: 0.75rem; }
+        .toast { display: flex; align-items: center; padding: 0.75rem 1.25rem; background-color: #1f2937; color: #f9fafb; border: 1px solid #4b5563; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2), 0 4px 6px -4px rgb(0 0 0 / 0.1); transform: translateX(120%); transition: transform 0.4s ease-in-out; }
+        .toast.show { transform: translateX(0); } .toast.success { background-color: #059669; border-color: #047857; } .toast.error { background-color: #dc2626; border-color: #b91c1c; }
     </style>
 </head>
 <body class="flex h-screen w-full">
 
-    <!-- App Loader -->
+    <div id="error-overlay" class="hidden"></div>
+
     <div id="loader" class="flex items-center justify-center h-screen w-full">
         <div class="text-center">
             <svg class="animate-spin h-10 w-10 text-indigo-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -67,7 +63,6 @@
         </div>
     </div>
 
-    <!-- Password Prompt -->
     <div id="password-prompt" class="hidden w-full h-full items-center justify-center p-4">
         <div class="w-full max-w-md p-8 space-y-6 glass-card rounded-xl shadow-lg">
             <div class="text-center">
@@ -85,78 +80,74 @@
                     <input type="password" id="confirm-password-input" class="mt-1 block w-full px-3 py-2 bg-gray-800 border border-slate-600 rounded-md text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
                 <p id="password-error" class="text-red-400 text-sm h-5"></p>
-                <button type="submit" id="password-submit-button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-900 disabled:bg-indigo-800 disabled:cursor-not-allowed">
-                    Unlock
-                </button>
+                <button type="submit" id="password-submit-button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-gray-900 disabled:bg-indigo-800 disabled:cursor-not-allowed">Unlock</button>
             </form>
         </div>
     </div>
     
-    <!-- Main App UI -->
-    <div id="app-container" class="hidden h-full w-full md:flex">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="w-80 h-full bg-gray-900/80 backdrop-blur-md border-r border-slate-700/50 flex-shrink-0 flex flex-col p-4 transition-all duration-300 ease-in-out">
-            <header class="flex items-center justify-between mb-4">
+    <div id="app-container" class="hidden h-full w-full flex">
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden transition-opacity duration-300"></div>
+        <aside id="sidebar" class="absolute md:relative z-40 h-full w-80 bg-gray-900/80 backdrop-blur-md border-r border-slate-700/50 flex-shrink-0 flex flex-col p-4 transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0">
+            <header class="flex items-center justify-between mb-4 flex-shrink-0">
                 <h1 class="text-2xl font-bold text-slate-100">NoteSphere</h1>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center">
                     <button id="settings-button" class="p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-700" title="Settings">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2.4l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2.4l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     </button>
                     <button id="sidebar-close-button" class="md:hidden p-2 text-slate-400 hover:text-white transition-colors rounded-full hover:bg-slate-700">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
             </header>
-            <button id="new-note-button" class="flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 mb-4">
+            <button id="new-note-button" class="flex items-center justify-center w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 mb-4 flex-shrink-0 shadow-lg hover:shadow-indigo-500/50">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 New Note
             </button>
-            <div class="relative mb-4">
+            <div class="relative mb-4 flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 <input type="text" id="search-input" placeholder="Search notes..." class="w-full bg-gray-800 border border-slate-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
             <div id="notes-list-container" class="flex-1 overflow-y-auto -mr-2 pr-2">
                 <ul id="notes-list"></ul>
                 <div id="no-notes-message" class="text-center text-slate-500 pt-10 px-4 hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
                     <p>No notes found.</p>
                 </div>
             </div>
         </aside>
 
-        <!-- Editor -->
-        <main id="editor-container" class="flex-1 flex flex-col min-w-0 bg-gray-800/50">
-            <!-- Welcome Screen -->
-            <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-slate-600">
-                <button id="sidebar-open-button" class="absolute top-4 left-4 p-2 text-slate-400 hover:text-white">
+        <main id="editor-container" class="flex-1 flex flex-col min-w-0 bg-gray-800/60">
+            <div id="welcome-screen" class="flex flex-col items-center justify-center h-full text-slate-600 p-8 text-center">
+                <button id="editor-sidebar-button-welcome" class="absolute top-4 left-4 p-2 text-slate-400 hover:text-white md:hidden">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                <h2 class="mt-4 text-xl font-medium">Select a note to view</h2>
-                <p>Or create a new one to get started.</p>
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                <h2 class="mt-4 text-xl font-medium text-slate-300">Welcome to NoteSphere</h2>
+                <p>Select a note to view, or create a new one to get started.</p>
             </div>
             
-            <!-- Note Editor -->
             <div id="note-editor" class="hidden h-full flex-col">
                  <header class="flex items-center justify-between p-4 border-b border-slate-700/50 flex-shrink-0">
                     <div class="flex items-center space-x-4">
-                        <button id="editor-sidebar-button" class="p-2 text-slate-400 hover:text-white">
+                        <button id="editor-sidebar-button" class="p-2 text-slate-400 hover:text-white md:hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                         </button>
-                        <div id="color-palette" class="items-center space-x-2 hidden"></div>
+                        <div id="autosave-status" class="text-sm text-slate-500 transition-opacity duration-300 opacity-0"></div>
                     </div>
                     <div id="editor-buttons" class="flex items-center space-x-3"></div>
                 </header>
                 <div class="flex-1 p-6 overflow-y-auto">
-                    <input type="text" id="note-title-input" placeholder="Note Title" class="w-full text-4xl font-bold bg-transparent focus:outline-none mb-4 text-slate-100 placeholder-slate-500" disabled>
-                    <textarea id="note-content-input" placeholder="Start writing..." class="w-full h-full text-lg bg-transparent focus:outline-none resize-none text-slate-300 placeholder-slate-600" style="min-height: calc(100vh - 200px);" disabled></textarea>
+                    <input type="text" id="note-title-input" placeholder="Note Title" class="w-full text-4xl font-bold bg-transparent focus:outline-none mb-4 text-slate-100 placeholder-slate-500">
+                    <textarea id="note-content-input" placeholder="Start writing with Markdown..." class="w-full h-full text-lg bg-transparent focus:outline-none resize-none text-slate-300 placeholder-slate-600" style="min-height: calc(100vh - 220px);"></textarea>
+                    <div id="markdown-preview" class="w-full h-full markdown-preview hidden" style="min-height: calc(100vh - 220px);"></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal hidden">
+    <div id="toast-container"></div>
+    
+    <div id="settings-modal" class="modal">
         <div class="modal-content space-y-4">
             <div class="flex justify-between items-center">
                 <h2 class="text-2xl font-bold text-white">Settings & Data</h2>
@@ -165,34 +156,25 @@
                 </button>
             </div>
             <div class="p-4 bg-yellow-900/50 border border-yellow-700 rounded-lg text-yellow-200 text-sm flex items-start space-x-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                <div>
-                    <strong>Important:</strong> Your password is the key. If you forget it, your data cannot be recovered. Keep your backup text and password safe.
-                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                <div><strong>Important:</strong> Your password is the only key. If forgotten, your data is unrecoverable. Keep backups and your password safe.</div>
             </div>
-            
             <div class="space-y-2">
                 <label class="font-semibold text-slate-200">Export / Backup</label>
-                <p class="text-sm text-slate-400">Click the button, then copy the text from the box and save it to a safe file.</p>
-                <button id="export-button" class="w-full flex items-center justify-center space-x-2 p-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold transition">
-                    Generate Backup Text
-                </button>
+                <p class="text-sm text-slate-400">Click to generate your backup. Copy the text from the box and save it to a secure file.</p>
+                <button id="export-button" class="w-full flex items-center justify-center space-x-2 p-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-semibold transition">Generate Backup Text</button>
                 <textarea id="export-data-area" class="w-full h-24 bg-gray-900 text-slate-300 rounded-md p-2 text-xs font-mono hidden" readonly></textarea>
             </div>
-            
              <div class="space-y-2">
                 <label class="font-semibold text-slate-200">Import / Restore</label>
-                 <p class="text-sm text-slate-400">Paste your backup text into the box below and click import. <strong>This will overwrite all current data.</strong></p>
+                 <p class="text-sm text-slate-400">Paste your backup text below. <strong>This will overwrite all current data.</strong></p>
                 <textarea id="import-data-area" class="w-full h-24 bg-gray-900 text-slate-300 rounded-md p-2 text-xs font-mono" placeholder="Paste your backup text here..."></textarea>
-                <button id="import-button" class="w-full flex items-center justify-center space-x-2 p-3 bg-green-600 hover:bg-green-500 rounded-lg font-semibold transition">
-                    Import and Overwrite Data
-                </button>
+                <button id="import-button" class="w-full flex items-center justify-center space-x-2 p-3 bg-green-600 hover:bg-green-500 rounded-lg font-semibold transition">Import and Overwrite</button>
             </div>
         </div>
     </div>
     
-    <!-- Custom Confirm Modal -->
-    <div id="confirm-modal" class="modal hidden">
+    <div id="confirm-modal" class="modal">
         <div class="modal-content space-y-4 text-center">
             <h3 id="confirm-title" class="text-xl font-bold text-white">Are you sure?</h3>
             <p id="confirm-message" class="text-slate-300">This action cannot be undone.</p>
@@ -204,184 +186,124 @@
     </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    // --- Global Error Handler ---
+    window.onerror = function(message, source, lineno, colno, error) {
+        const errorOverlay = document.getElementById('error-overlay');
+        if (errorOverlay) {
+            errorOverlay.classList.remove('hidden');
+            errorOverlay.textContent = `CRITICAL ERROR: ${message} at ${source.split('/').pop()}:${lineno}`;
+        }
+        const loader = document.getElementById('loader');
+        if (loader) loader.classList.add('hidden');
+        return true;
+    };
+
+    (function() {
         // --- STATE MANAGEMENT ---
-        let state = {
-            encryptionKey: null,
-            notes: [],
-            selectedNoteId: null,
-            isEditing: false,
-            isCreating: false,
-        };
+        let state = { encryptionKey: null, notes: [], selectedNoteId: null, isCreating: false, isPreview: false };
+        let autosaveTimeout;
 
         // --- DOM ELEMENTS ---
         const $ = (selector) => document.querySelector(selector);
         const dom = {
-            loader: $('#loader'),
-            loaderMessage: $('#loader-message'),
-            passwordPrompt: $('#password-prompt'),
-            passwordForm: $('#password-form'),
-            passwordTitle: $('#password-title'),
-            passwordSubtitle: $('#password-subtitle'),
-            passwordInput: $('#password-input'),
-            passwordError: $('#password-error'),
-            passwordSubmitButton: $('#password-submit-button'),
-            confirmPasswordContainer: $('#confirm-password-container'),
-            confirmPasswordInput: $('#confirm-password-input'),
-            appContainer: $('#app-container'),
-            sidebar: $('#sidebar'),
-            sidebarOpenBtn: $('#sidebar-open-button'),
-            sidebarCloseBtn: $('#sidebar-close-button'),
-            editorSidebarBtn: $('#editor-sidebar-button'),
-            notesList: $('#notes-list'),
-            noNotesMessage: $('#no-notes-message'),
-            newNoteButton: $('#new-note-button'),
-            searchInput: $('#search-input'),
-            editorContainer: $('#editor-container'),
-            welcomeScreen: $('#welcome-screen'),
-            noteEditor: $('#note-editor'),
-            noteTitleInput: $('#note-title-input'),
-            noteContentInput: $('#note-content-input'),
-            editorButtons: $('#editor-buttons'),
-            colorPalette: $('#color-palette'),
-            settings: {
-                modal: $('#settings-modal'),
-                openBtn: $('#settings-button'),
-                closeBtn: $('#settings-close-button'),
-                exportBtn: $('#export-button'),
-                exportArea: $('#export-data-area'),
-                importBtn: $('#import-button'),
-                importArea: $('#import-data-area'),
-            },
-            confirm: {
-                modal: $('#confirm-modal'),
-                title: $('#confirm-title'),
-                message: $('#confirm-message'),
-                okBtn: $('#confirm-ok-button'),
-                cancelBtn: $('#confirm-cancel-button'),
-            }
+            loader: $('#loader'), passwordPrompt: $('#password-prompt'), passwordForm: $('#password-form'), passwordTitle: $('#password-title'), passwordSubtitle: $('#password-subtitle'), passwordInput: $('#password-input'), passwordError: $('#password-error'), passwordSubmitButton: $('#password-submit-button'), confirmPasswordContainer: $('#confirm-password-container'), confirmPasswordInput: $('#confirm-password-input'),
+            appContainer: $('#app-container'), sidebar: $('#sidebar'), sidebarOverlay: $('#sidebar-overlay'), sidebarCloseBtn: $('#sidebar-close-button'), editorSidebarBtn: $('#editor-sidebar-button'), editorSidebarBtnWelcome: $('#editor-sidebar-button-welcome'),
+            notesList: $('#notes-list'), noNotesMessage: $('#no-notes-message'), newNoteButton: $('#new-note-button'), searchInput: $('#search-input'),
+            welcomeScreen: $('#welcome-screen'), noteEditor: $('#note-editor'), noteTitleInput: $('#note-title-input'), noteContentInput: $('#note-content-input'), markdownPreview: $('#markdown-preview'),
+            editorButtons: $('#editor-buttons'), autosaveStatus: $('#autosave-status'), toastContainer: $('#toast-container'),
+            settings: { modal: $('#settings-modal'), openBtn: $('#settings-button'), closeBtn: $('#settings-close-button'), exportBtn: $('#export-button'), exportArea: $('#export-data-area'), importBtn: $('#import-button'), importArea: $('#import-data-area') },
+            confirm: { modal: $('#confirm-modal'), title: $('#confirm-title'), message: $('#confirm-message'), okBtn: $('#confirm-ok-button'), cancelBtn: $('#confirm-cancel-button') }
         };
 
-        // --- CRYPTOGRAPHY & DB ---
-        const DB_NAME = 'NoteSphereLocalDB', DB_VERSION = 1, NOTE_STORE = 'notes', META_STORE = 'metadata';
+        // --- DB & CRYPTO ---
+        const DB_NAME = 'NoteSphereCompleteDB', DB_VERSION = 1, NOTE_STORE = 'notes', META_STORE = 'metadata';
         let db;
-
-        const dbRequest = indexedDB.open(DB_NAME, DB_VERSION);
-        dbRequest.onerror = () => handleError("Failed to open the database. Please ensure your browser supports IndexedDB and is not in private mode.");
-        dbRequest.onupgradeneeded = e => {
-            const dbInstance = e.target.result;
-            if (!dbInstance.objectStoreNames.contains(NOTE_STORE)) dbInstance.createObjectStore(NOTE_STORE, { keyPath: 'id' });
-            if (!dbInstance.objectStoreNames.contains(META_STORE)) dbInstance.createObjectStore(META_STORE, { keyPath: 'key' });
-        };
-        dbRequest.onsuccess = e => {
-            db = e.target.result;
-            initializeApp();
-        };
-        
         const cryptoUtils = {
-            async getKey(password, salt) {
-                const enc = new TextEncoder();
-                const keyMaterial = await window.crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
-                return window.crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
-            },
-            async encrypt(key, data) {
-                const enc = new TextEncoder();
-                const iv = window.crypto.getRandomValues(new Uint8Array(12));
-                const encryptedContent = await window.crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(data));
-                const encryptedArr = new Uint8Array([...iv, ...new Uint8Array(encryptedContent)]);
-                return window.btoa(String.fromCharCode.apply(null, encryptedArr));
-            },
-            async decrypt(key, encryptedBase64) {
-                try {
-                    const encryptedBytes = Uint8Array.from(window.atob(encryptedBase64), c => c.charCodeAt(0));
-                    const iv = encryptedBytes.slice(0, 12);
-                    const data = encryptedBytes.slice(12);
-                    const decryptedContent = await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, data);
-                    return new TextDecoder().decode(decryptedContent);
-                } catch (e) { return null; }
-            }
+            getKey: async (p, s) => { const e = new TextEncoder(); const k = await crypto.subtle.importKey('raw', e.encode(p), {name:'PBKDF2'}, !1, ['deriveKey']); return crypto.subtle.deriveKey({name:'PBKDF2', salt:s, iterations:1e5, hash:'SHA-256'}, k, {name:'AES-GCM', length:256}, !0, ['encrypt', 'decrypt'])},
+            encrypt: async (k, d) => { const e = new TextEncoder(); const i = crypto.getRandomValues(new Uint8Array(12)); const c = await crypto.subtle.encrypt({name:'AES-GCM', iv:i}, k, e.encode(d)); return btoa(String.fromCharCode.apply(null, new Uint8Array([...i, ...new Uint8Array(c)])))},
+            decrypt: async (k, d) => { try { const b = Uint8Array.from(atob(d), c => c.charCodeAt(0)); const i = b.slice(0, 12); const c = b.slice(12); const r = await crypto.subtle.decrypt({name:'AES-GCM', iv:i}, k, c); return new TextDecoder().decode(r)} catch (e) {return null}}
         };
-
         const dbUtils = {
-            get: (storeName, key) => new Promise((resolve, reject) => {
-                const tx = db.transaction(storeName, 'readonly').objectStore(storeName).get(key);
-                tx.onsuccess = () => resolve(tx.result);
-                tx.onerror = () => reject(tx.error);
-            }),
-            getAll: (storeName) => new Promise((resolve, reject) => {
-                const tx = db.transaction(storeName, 'readonly').objectStore(storeName).getAll();
-                tx.onsuccess = () => resolve(tx.result);
-                tx.onerror = () => reject(tx.error);
-            }),
-            set: (storeName, value) => new Promise((resolve, reject) => {
-                const tx = db.transaction(storeName, 'readwrite').objectStore(storeName).put(value);
-                tx.onsuccess = () => resolve(tx.result);
-                tx.onerror = () => reject(tx.error);
-            }),
-            delete: (storeName, key) => new Promise((resolve, reject) => {
-                const tx = db.transaction(storeName, 'readwrite').objectStore(storeName).delete(key);
-                tx.onsuccess = () => resolve();
-                tx.onerror = () => reject(tx.error);
-            }),
-            clear: (storeName) => new Promise((resolve, reject) => {
-                const tx = db.transaction(storeName, 'readwrite').objectStore(storeName).clear();
-                tx.onsuccess = () => resolve();
-                tx.onerror = () => reject(tx.error);
-            })
+            get: (s, k) => new Promise((v, j) => { const t = db.transaction(s, 'readonly').objectStore(s).get(k); t.onsuccess = () => v(t.result); t.onerror = () => j(t.error)}),
+            getAll: s => new Promise((v, j) => { const t = db.transaction(s, 'readonly').objectStore(s).getAll(); t.onsuccess = () => v(t.result); t.onerror = () => j(t.error)}),
+            set: (s, d) => new Promise((v, j) => { const t = db.transaction(s, 'readwrite').objectStore(s).put(d); t.onsuccess = () => v(t.result); t.onerror = () => j(t.error)}),
+            delete: (s, k) => new Promise((v, j) => { const t = db.transaction(s, 'readwrite').objectStore(s).delete(k); t.onsuccess = () => v(); t.onerror = () => j(t.error)}),
+            clear: s => new Promise((v, j) => { const t = db.transaction(s, 'readwrite').objectStore(s).clear(); t.onsuccess = () => v(); t.onerror = () => j(t.error)})
         };
-
-        // --- APP LOGIC & RENDERING ---
         
-        function handleError(message, isFatal = false) {
-            console.error(message);
-            if (isFatal) {
-                dom.loaderMessage.textContent = `Error: ${message}`;
-                dom.loaderMessage.classList.add('text-red-400');
-            } else {
-                // Show a non-fatal error, maybe in a toast later
-                alert(`Error: ${message}`); 
+        // --- UTILITIES ---
+        const debounce = (func, delay = 1500) => (...args) => { dom.autosaveStatus.textContent = "Saving..."; dom.autosaveStatus.style.opacity = 1; clearTimeout(autosaveTimeout); autosaveTimeout = setTimeout(() => { func.apply(this, args); dom.autosaveStatus.textContent = "Saved"; setTimeout(() => dom.autosaveStatus.style.opacity = 0, 2000); }, delay); };
+        const debouncedSave = debounce(saveNote);
+        const showToast = (msg, type = 'info') => { const t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = msg; dom.toastContainer.appendChild(t); setTimeout(() => t.classList.add('show'), 10); setTimeout(() => { t.classList.remove('show'); t.addEventListener('transitionend', () => t.remove()); }, 4000); };
+        const showConfirmDialog = (title, msg, onConfirm) => { dom.confirm.title.textContent = title; dom.confirm.message.textContent = msg; dom.confirm.modal.classList.add('visible'); const ok = () => { onConfirm(); cleanup(); }; const cleanup = () => { dom.confirm.okBtn.removeEventListener('click', ok); dom.confirm.cancelBtn.removeEventListener('click', cleanup); dom.confirm.modal.classList.remove('visible'); }; dom.confirm.okBtn.addEventListener('click', ok, {once: true}); dom.confirm.cancelBtn.addEventListener('click', cleanup, {once: true}); };
+        const simpleMarkdownParser = t => t.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/^# (.*$)/gim, '<h1>$1</h1>').replace(/^## (.*$)/gim, '<h2>$1</h2>').replace(/^### (.*$)/gim, '<h3>$1</h3>').replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>').replace(/\*(.*)\*/gim, '<em>$1</em>').replace(/^- (.*$)/gim, '<ul>\n<li>$1</li>\n</ul>').replace(/^\* (.*$)/gim, '<ul>\n<li>$1</li>\n</ul>').replace(/<\/ul>\n<ul>/gim, '').replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>').replace(/\n/g, '<br>');
+
+        // --- RENDER & LOGIC ---
+        function renderNotesList() {
+            const term = dom.searchInput.value.toLowerCase();
+            const filtered = state.notes.filter(n => (n.title?.toLowerCase()||'').includes(term) || (n.content?.toLowerCase()||'').includes(term));
+            dom.notesList.innerHTML = '';
+            dom.noNotesMessage.classList.toggle('hidden', filtered.length > 0);
+            filtered.forEach(note => {
+                const li = document.createElement('li');
+                li.dataset.noteId = note.id;
+                li.className = `cursor-pointer p-3 mb-2 rounded-lg transition-colors duration-200 ${note.id === state.selectedNoteId ? 'bg-indigo-600/50' : 'hover:bg-gray-700/70'}`;
+                li.innerHTML = `<h3 class="font-semibold text-slate-100 truncate">${note.title || 'Untitled Note'}</h3><p class="text-sm text-slate-400 truncate">${(note.content || 'No content').substring(0, 100)}</p>`;
+                dom.notesList.appendChild(li);
+            });
+        }
+
+        function renderEditor() {
+            const note = state.notes.find(n => n.id === state.selectedNoteId);
+            const showEditor = state.isCreating || !!note;
+            dom.welcomeScreen.classList.toggle('hidden', showEditor);
+            dom.noteEditor.classList.toggle('hidden', !showEditor);
+            if (!showEditor) { state.isCreating = false; state.isPreview = false; return; }
+            dom.noteTitleInput.value = state.isCreating ? '' : (note?.title || '');
+            dom.noteContentInput.value = state.isCreating ? '' : (note?.content || '');
+            dom.noteContentInput.classList.toggle('hidden', state.isPreview);
+            dom.markdownPreview.classList.toggle('hidden', !state.isPreview);
+            if (state.isPreview) dom.markdownPreview.innerHTML = simpleMarkdownParser(dom.noteContentInput.value);
+            renderEditorButtons();
+        }
+
+        function renderEditorButtons() {
+            dom.editorButtons.innerHTML = '';
+            const isNoteSelected = !!state.selectedNoteId;
+            if (isNoteSelected) {
+                dom.editorButtons.innerHTML = `
+                    <button id="preview-toggle-button" class="flex items-center space-x-2 bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-3 rounded-lg transition" title="Toggle Markdown Preview">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <span>${state.isPreview ? 'Edit' : 'Preview'}</span>
+                    </button>
+                    <button id="delete-note-button" class="flex items-center space-x-2 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-3 rounded-lg transition" title="Delete Note">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>`;
             }
         }
 
-        async function initializeApp() {
-            try {
-                if(!window.crypto || !window.crypto.subtle){
-                     handleError("Web Crypto API not available. Please use a modern, secure browser.", true);
-                     return;
-                }
-                const saltData = await dbUtils.get(META_STORE, 'encryptionSalt');
-                dom.loader.classList.add('hidden');
-                dom.passwordPrompt.classList.remove('hidden');
-                dom.passwordPrompt.classList.add('flex');
-                if (!saltData) setupNewUser(); else setupExistingUser();
-            } catch (e) {
-                handleError(`Initialization failed: ${e.message}`, true);
-            }
+        async function saveNote() {
+            const noteId = state.isCreating ? crypto.randomUUID() : state.selectedNoteId;
+            if (!noteId) return;
+            const noteData = { title: dom.noteTitleInput.value.trim(), content: dom.noteContentInput.value };
+            const encryptedContent = await cryptoUtils.encrypt(state.encryptionKey, JSON.stringify(noteData));
+            const dbRecord = { id: noteId, updatedAt: new Date().toISOString(), encryptedContent };
+            await dbUtils.set(NOTE_STORE, dbRecord);
+            if (state.isCreating) showToast('Note Created!', 'success');
+            const newNotes = await loadAndDecryptNotes(state.encryptionKey);
+            state.notes = newNotes;
+            if (state.isCreating) { state.selectedNoteId = noteId; }
+            state.isCreating = false;
+            renderNotesList();
+            renderEditorButtons();
         }
 
-        function setupNewUser() {
-            dom.passwordTitle.textContent = 'Set Your Master Password';
-            dom.passwordSubtitle.textContent = 'This password encrypts all your notes and cannot be recovered if forgotten.';
-            dom.confirmPasswordContainer.classList.remove('hidden');
-            dom.confirmPasswordInput.required = true;
-            dom.passwordSubmitButton.textContent = 'Set Password & Start';
-        }
-
-        function setupExistingUser() {
-            dom.passwordTitle.textContent = 'Unlock Your Notes';
-            dom.passwordSubtitle.textContent = 'Enter your password to decrypt and access your notes.';
-            dom.confirmPasswordContainer.classList.add('hidden');
-            dom.confirmPasswordInput.required = false;
-            dom.passwordSubmitButton.textContent = 'Unlock';
-        }
-        
         async function login(password) {
             const saltData = await dbUtils.get(META_STORE, 'encryptionSalt');
-            if(!saltData) throw new Error("Salt not found.");
+            if (!saltData) throw new Error("Salt not found.");
             const key = await cryptoUtils.getKey(password, saltData.value);
             const decryptedNotes = await loadAndDecryptNotes(key);
             if (decryptedNotes === null) return false;
-            
             state.encryptionKey = key;
             state.notes = decryptedNotes;
             dom.passwordPrompt.classList.add('hidden');
@@ -393,277 +315,69 @@
 
         async function loadAndDecryptNotes(key) {
              try {
-                const encryptedNotes = await dbUtils.getAll(NOTE_STORE);
-                const decryptedNotes = await Promise.all(
-                    encryptedNotes.map(async (note) => {
-                        const decryptedContent = await cryptoUtils.decrypt(key, note.encryptedContent);
-                        if (decryptedContent === null) throw new Error("Decryption failed for at least one note. The password may be incorrect.");
-                        
-                        const contentData = JSON.parse(decryptedContent);
-                        return { id: note.id, updatedAt: note.updatedAt, ...contentData };
-                    })
-                );
-                return decryptedNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-            } catch (e) {
-                console.error(e.message);
-                return null;
-            }
-        }
-        
-        function renderNotesList() {
-            const searchTerm = dom.searchInput.value.toLowerCase();
-            const filteredNotes = state.notes.filter(note => 
-                (note.title && note.title.toLowerCase().includes(searchTerm)) || 
-                (note.content && note.content.toLowerCase().includes(searchTerm))
-            );
-
-            dom.notesList.innerHTML = '';
-            if (filteredNotes.length === 0) {
-                dom.noNotesMessage.classList.remove('hidden');
-            } else {
-                dom.noNotesMessage.classList.add('hidden');
-                filteredNotes.forEach(note => {
-                    const li = document.createElement('li');
-                    li.dataset.noteId = note.id;
-                    const isSelected = note.id === state.selectedNoteId;
-                    li.className = `cursor-pointer p-3 mb-2 rounded-lg transition-colors duration-200 ${isSelected ? 'bg-indigo-600/50' : 'hover:bg-gray-700/70'}`;
-                    li.innerHTML = `
-                        <div class="flex items-start space-x-3">
-                            <div class="w-2 h-10 rounded-full flex-shrink-0" style="background-color: ${note.color || '#4A5568'};"></div>
-                            <div class="flex-1 overflow-hidden">
-                                <h3 class="font-semibold text-slate-100 truncate">${note.title || 'Untitled Note'}</h3>
-                                <p class="text-sm text-slate-400 truncate">${note.content || 'No additional content'}</p>
-                            </div>
-                            <span class="text-xs text-slate-500 self-start flex-shrink-0">${new Date(note.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                        </div>`;
-                    dom.notesList.appendChild(li);
-                });
-            }
-        }
-        
-        function renderEditor() {
-            const note = state.notes.find(n => n.id === state.selectedNoteId);
-            
-            if (state.isCreating || note) {
-                dom.welcomeScreen.classList.add('hidden');
-                dom.noteEditor.classList.remove('hidden');
-                dom.noteEditor.classList.add('flex');
-
-                const currentTitle = state.isCreating ? '' : (note?.title || '');
-                const currentContent = state.isCreating ? '' : (note?.content || '');
-                const currentColor = state.isCreating ? '#4A5568' : (note?.color || '#4A5568');
-                
-                dom.noteTitleInput.value = currentTitle;
-                dom.noteContentInput.value = currentContent;
-                
-                renderEditorButtons();
-                renderColorPalette(currentColor);
-                updateEditorState(state.isEditing || state.isCreating);
-
-            } else {
-                dom.welcomeScreen.classList.remove('hidden');
-                dom.welcomeScreen.classList.add('flex');
-                dom.noteEditor.classList.add('hidden');
-                state.isEditing = false;
-                state.isCreating = false;
-            }
+                const encNotes = await dbUtils.getAll(NOTE_STORE);
+                const decNotes = await Promise.all(encNotes.map(async n => {
+                    const decContent = await cryptoUtils.decrypt(key, n.encryptedContent);
+                    if (decContent === null) throw new Error("Decryption failed.");
+                    return { id: n.id, updatedAt: n.updatedAt, ...JSON.parse(decContent) };
+                }));
+                return decNotes.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            } catch (e) { console.error(e.message); return null; }
         }
 
-        function updateEditorState(isEditable) {
-            dom.noteTitleInput.disabled = !isEditable;
-            dom.noteContentInput.disabled = !isEditable;
-            dom.colorPalette.classList.toggle('hidden', !isEditable);
-            dom.colorPalette.classList.toggle('flex', isEditable);
-        }
-        
-        function renderEditorButtons() {
-            dom.editorButtons.innerHTML = '';
-            if(state.isEditing || state.isCreating) {
-                dom.editorButtons.innerHTML = `
-                    <button id="save-note-button" class="flex items-center bg-green-600 hover:bg-green-500 text-white font-semibold py-2 px-4 rounded-lg transition">Save</button>
-                    ${!state.isCreating ? `<button id="cancel-edit-button" class="flex items-center bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition">Cancel</button>` : ''}`;
-            } else {
-                dom.editorButtons.innerHTML = `
-                    <button id="edit-note-button" class="flex items-center bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg transition">Edit</button>
-                    <button id="delete-note-button" class="flex items-center bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-lg transition">Delete</button>`;
-            }
-        }
-
-        function renderColorPalette(selectedColor) {
-            const colors = ['#4A5568', '#A0AEC0', '#F56565', '#ED8936', '#ECC94B', '#48BB78', '#38B2AC', '#4299E1', '#667EEA', '#9F7AEA', '#ED64A6'];
-            dom.colorPalette.innerHTML = '';
-            colors.forEach(color => {
-                const button = document.createElement('button');
-                button.dataset.color = color;
-                button.className = `w-6 h-6 rounded-full transition transform hover:scale-110 ${color.toLowerCase() === selectedColor.toLowerCase() ? 'ring-2 ring-offset-2 ring-offset-gray-800 ring-white' : ''}`;
-                button.style.backgroundColor = color;
-                dom.colorPalette.appendChild(button);
+        // --- Event Listeners ---
+        function setupEventListeners() {
+            dom.passwordForm.addEventListener('submit', async (e) => {
+                e.preventDefault(); dom.passwordError.textContent = ''; dom.passwordSubmitButton.disabled = true;
+                const p = dom.passwordInput.value, isNew = dom.confirmPasswordInput.required;
+                if (isNew) {
+                    if (p.length < 8) { dom.passwordError.textContent = "Password must be at least 8 characters."; }
+                    else if (p !== dom.confirmPasswordInput.value) { dom.passwordError.textContent = "Passwords do not match."; }
+                    else { const s = crypto.getRandomValues(new Uint8Array(16)); await dbUtils.set(META_STORE, {key:'encryptionSalt', value:s}); await login(p); }
+                } else { if (!(await login(p))) dom.passwordError.textContent = "Incorrect password or corrupted data."; }
+                dom.passwordSubmitButton.disabled = false;
             });
-        }
-        
-        async function saveNote() {
-            const noteId = state.isCreating ? crypto.randomUUID() : state.selectedNoteId;
-            const noteData = {
-                title: dom.noteTitleInput.value,
-                content: dom.noteContentInput.value,
-                color: dom.colorPalette.querySelector('.ring-2')?.dataset.color || '#4A5568'
-            };
-
-            const encryptedContent = await cryptoUtils.encrypt(state.encryptionKey, JSON.stringify(noteData));
-            const dbRecord = { id: noteId, updatedAt: new Date().toISOString(), encryptedContent };
-            await dbUtils.set(NOTE_STORE, dbRecord);
-
-            const newNotes = await loadAndDecryptNotes(state.encryptionKey);
-            state.notes = newNotes;
-            state.selectedNoteId = noteId;
-            state.isEditing = false;
-            state.isCreating = false;
-
-            renderNotesList();
-            renderEditor();
-        }
-        
-        async function deleteNote(noteId) {
-            await dbUtils.delete(NOTE_STORE, noteId);
-            state.selectedNoteId = null;
-            state.notes = state.notes.filter(n => n.id !== noteId);
-            renderNotesList();
-            renderEditor();
-        }
-        
-        function showConfirmDialog(title, message, onConfirm) {
-            dom.confirm.title.textContent = title;
-            dom.confirm.message.textContent = message;
-            dom.confirm.modal.classList.remove('hidden');
-
-            const handleConfirm = () => {
-                onConfirm();
-                cleanup();
-            };
-            const cleanup = () => {
-                dom.confirm.okBtn.removeEventListener('click', handleConfirm);
-                dom.confirm.cancelBtn.removeEventListener('click', cleanup);
-                dom.confirm.modal.classList.add('hidden');
-            };
-            
-            dom.confirm.okBtn.addEventListener('click', handleConfirm, { once: true });
-            dom.confirm.cancelBtn.addEventListener('click', cleanup, { once: true });
-        }
-
-        // --- EVENT LISTENERS ---
-        dom.passwordForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            dom.passwordError.textContent = '';
-            dom.passwordSubmitButton.disabled = true;
-            
-            const password = dom.passwordInput.value;
-            const isNewUser = dom.confirmPasswordInput.required;
-            
-            if (isNewUser) {
-                const confirmPassword = dom.confirmPasswordInput.value;
-                if (password.length < 8) {
-                    dom.passwordError.textContent = "Password must be at least 8 characters.";
-                } else if (password !== confirmPassword) {
-                    dom.passwordError.textContent = "Passwords do not match.";
-                } else {
-                    const salt = window.crypto.getRandomValues(new Uint8Array(16));
-                    await dbUtils.set(META_STORE, { key: 'encryptionSalt', value: salt });
-                    await login(password);
-                }
-            } else {
-                const success = await login(password);
-                if (!success) dom.passwordError.textContent = "Incorrect password or corrupted data.";
-            }
-            dom.passwordSubmitButton.disabled = false;
-        });
-
-        dom.newNoteButton.addEventListener('click', () => {
-            state.selectedNoteId = null;
-            state.isCreating = true;
-            state.isEditing = true;
-            renderEditor();
-            if(window.innerWidth < 768) dom.sidebar.classList.remove('w-80');
-        });
-        
-        dom.notesList.addEventListener('click', (e) => {
-            const li = e.target.closest('li');
-            if (li) {
-                state.selectedNoteId = li.dataset.noteId;
-                state.isEditing = false;
-                state.isCreating = false;
-                renderNotesList(); // to update selection style
-                renderEditor();
-                if(window.innerWidth < 768) dom.sidebar.classList.remove('w-80');
-            }
-        });
-        
-        dom.searchInput.addEventListener('input', renderNotesList);
-
-        dom.editorContainer.addEventListener('click', (e) => {
-            if (e.target.id === 'edit-note-button') {
-                state.isEditing = true;
-                renderEditor();
-            }
-            if (e.target.id === 'save-note-button') {
-                saveNote();
-            }
-             if (e.target.id === 'cancel-edit-button') {
-                state.isEditing = false;
-                renderEditor();
-            }
-            if (e.target.id === 'delete-note-button') {
-                showConfirmDialog('Delete Note?', 'This note will be permanently deleted.', () => deleteNote(state.selectedNoteId));
-            }
-            if(e.target.closest('#color-palette button')) {
-                 const color = e.target.closest('button').dataset.color;
-                 renderColorPalette(color);
-            }
-        });
-        
-        // Sidebar toggle
-        const toggleSidebar = () => dom.sidebar.classList.toggle('w-80');
-        [dom.sidebarOpenBtn, dom.sidebarCloseBtn, dom.editorSidebarBtn].forEach(btn => btn.addEventListener('click', toggleSidebar));
-        
-        // Settings Modal
-        dom.settings.openBtn.addEventListener('click', () => dom.settings.modal.classList.remove('hidden'));
-        dom.settings.closeBtn.addEventListener('click', () => dom.settings.modal.classList.add('hidden'));
-        
-        dom.settings.exportBtn.addEventListener('click', async () => {
-            const saltData = await dbUtils.get(META_STORE, 'encryptionSalt');
-            const notes = await dbUtils.getAll(NOTE_STORE);
-            const exportData = { salt: Array.from(saltData.value), notes };
-            dom.settings.exportArea.value = JSON.stringify(exportData);
-            dom.settings.exportArea.classList.remove('hidden');
-            dom.settings.exportArea.select();
-            alert("Backup text generated in the text box. Please copy and save it to a secure file.");
-        });
-
-        dom.settings.importBtn.addEventListener('click', () => {
-            const importData = dom.settings.importArea.value;
-            if (!importData) {
-                alert("Please paste your backup data into the text box.");
-                return;
-            }
-            showConfirmDialog('Import and Overwrite?', 'This will replace all current notes. This action cannot be undone.', async () => {
-                try {
-                    const data = JSON.parse(importData);
-                    if (!data.salt || !data.notes) throw new Error("Invalid backup file format.");
-                    
-                    await dbUtils.clear(NOTE_STORE);
-                    await dbUtils.clear(META_STORE);
-                    await dbUtils.set(META_STORE, { key: 'encryptionSalt', value: new Uint8Array(data.salt) });
-                    for (const note of data.notes) {
-                        await dbUtils.set(NOTE_STORE, note);
-                    }
-                    alert("Import successful! The app will now reload. Please enter your original password to decrypt the imported data.");
-                    window.location.reload();
-                } catch (err) {
-                    alert(`Import failed: ${err.message}`);
-                }
+            dom.newNoteButton.addEventListener('click', () => { state.selectedNoteId = null; state.isCreating = true; state.isPreview = false; renderNotesList(); renderEditor(); dom.noteTitleInput.focus(); if (window.innerWidth < 768) closeSidebar(); });
+            dom.notesList.addEventListener('click', e => { const li = e.target.closest('li'); if (li) { state.selectedNoteId = li.dataset.noteId; state.isCreating = false; state.isPreview = false; renderNotesList(); renderEditor(); if (window.innerWidth < 768) closeSidebar(); }});
+            dom.searchInput.addEventListener('input', renderNotesList);
+            [dom.noteTitleInput, dom.noteContentInput].forEach(el => el.addEventListener('input', debouncedSave));
+            dom.editorButtons.addEventListener('click', e => {
+                const btn = e.target.closest('button'); if (!btn) return;
+                if (btn.id === 'delete-note-button') showConfirmDialog('Delete Note?', 'This note will be permanently deleted.', async () => { await dbUtils.delete(NOTE_STORE, state.selectedNoteId); state.selectedNoteId = null; state.notes = await loadAndDecryptNotes(state.encryptionKey); renderNotesList(); renderEditor(); showToast('Note Deleted', 'info'); });
+                if (btn.id === 'preview-toggle-button') { state.isPreview = !state.isPreview; renderEditor(); }
             });
-        });
-    });
+            // Sidebar
+            const openSidebar = () => { dom.sidebar.classList.remove('-translate-x-full'); dom.sidebarOverlay.classList.remove('hidden'); dom.sidebarOverlay.style.opacity = '1'; };
+            const closeSidebar = () => { dom.sidebar.classList.add('-translate-x-full'); dom.sidebarOverlay.style.opacity = '0'; setTimeout(() => dom.sidebarOverlay.classList.add('hidden'), 300); };
+            [dom.editorSidebarBtn, dom.editorSidebarBtnWelcome].forEach(b => b.addEventListener('click', openSidebar));
+            [dom.sidebarCloseBtn, dom.sidebarOverlay].forEach(b => b.addEventListener('click', closeSidebar));
+            // Settings Modal
+            dom.settings.openBtn.addEventListener('click', () => dom.settings.modal.classList.add('visible'));
+            dom.settings.closeBtn.addEventListener('click', () => dom.settings.modal.classList.remove('visible'));
+            dom.settings.exportBtn.addEventListener('click', async () => { const saltData = await dbUtils.get(META_STORE, 'encryptionSalt'); const notes = await dbUtils.getAll(NOTE_STORE); dom.settings.exportArea.value = JSON.stringify({ salt: Array.from(saltData.value), notes }); dom.settings.exportArea.classList.remove('hidden'); dom.settings.exportArea.select(); showToast('Backup text generated. Copy it now.', 'info'); });
+            dom.settings.importBtn.addEventListener('click', () => { const data = dom.settings.importArea.value; if (!data) return showToast('Paste backup data first.', 'error'); showConfirmDialog('Import and Overwrite?', 'This will replace all current notes.', async () => { try { const d = JSON.parse(data); if (!d.salt || !d.notes) throw new Error("Invalid format."); await dbUtils.clear(NOTE_STORE); await dbUtils.clear(META_STORE); await dbUtils.set(META_STORE, {key:'encryptionSalt', value: new Uint8Array(d.salt)}); for (const n of d.notes) { await dbUtils.set(NOTE_STORE, n); } showToast('Import successful! Reloading...', 'success'); setTimeout(() => window.location.reload(), 2000); } catch (err) { showToast(`Import failed: ${err.message}`, 'error'); }}); });
+        }
+
+        // --- MAIN INITIALIZATION ---
+        function main() {
+            if (!window.indexedDB || !window.crypto?.subtle) { throw new Error("Essential browser features (IndexedDB, Crypto API) are not supported."); }
+            const dbRequest = indexedDB.open(DB_NAME, DB_VERSION);
+            dbRequest.onerror = () => { throw new Error("Database failed to open. Check browser permissions."); };
+            dbRequest.onupgradeneeded = e => { const dbi = e.target.result; if (!dbi.objectStoreNames.contains(NOTE_STORE)) dbi.createObjectStore(NOTE_STORE, { keyPath: 'id' }); if (!dbi.objectStoreNames.contains(META_STORE)) dbi.createObjectStore(META_STORE, { keyPath: 'key' }); };
+            dbRequest.onsuccess = async e => {
+                db = e.target.result;
+                const saltData = await dbUtils.get(META_STORE, 'encryptionSalt');
+                dom.loader.classList.add('hidden');
+                dom.passwordPrompt.classList.remove('hidden');
+                dom.passwordPrompt.classList.add('flex');
+                if (!saltData) { dom.passwordTitle.textContent = 'Set Your Master Password'; dom.passwordSubtitle.textContent = 'This password encrypts your notes and CANNOT be recovered.'; dom.confirmPasswordContainer.classList.remove('hidden'); dom.confirmPasswordInput.required = true; dom.passwordSubmitButton.textContent = 'Set Password & Start'; }
+                setupEventListeners();
+            };
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', main);
+        else main();
+    })();
 </script>
 </body>
 </html>
-
